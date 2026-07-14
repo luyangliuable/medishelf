@@ -1,4 +1,4 @@
-export function createUploadPath(file) {
+export function createUploadPath(file: File) {
   const now = new Date()
   const year = now.getFullYear()
   const month = String(now.getMonth() + 1).padStart(2, '0')
@@ -7,13 +7,13 @@ export function createUploadPath(file) {
   return `photo/uploads/${year}/${month}/${id}.${ext}`
 }
 
-export function formatDate(value) {
+export function formatDate(value: string) {
   return new Intl.DateTimeFormat('en-AU', {
     day: 'numeric', month: 'short', year: 'numeric'
   }).format(new Date(value))
 }
 
-export function statusLabel(status) {
+export function statusLabel(status: string): 'Reviewed' | 'Pending' {
   if (status === 'complete') return 'Reviewed'
   if (status === 'rejected') return 'Reviewed'
   return 'Pending'

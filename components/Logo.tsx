@@ -1,6 +1,6 @@
 import Image from 'next/image'
 
-export default function Logo({ large = false }) {
+export default function Logo({ large = false }: { large?: boolean }) {
   return (
     <Image
       src="/images/medishelf.png"
@@ -8,7 +8,7 @@ export default function Logo({ large = false }) {
       width={large ? 220 : 112}
       height={large ? 113 : 58}
       priority={large}
-      style={{ objectFit: 'contain' }}
+      className="object-contain"
     />
   )
 }
