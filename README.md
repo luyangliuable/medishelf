@@ -60,13 +60,13 @@ Use a pre-deploy job for migrations instead of running `db:push` at web startup.
 npm ci --include=dev && npm run do:predeploy
 ```
 
-The pre-deploy script runs an idempotent schema check so a new database has the required tables before the first request:
+The pre-deploy script validates that the externally provisioned schema exists before the first request:
 
 ```bash
 npm run do:predeploy
 ```
 
-The registration and sign-in paths also verify the schema lazily, which protects first deploys when a pre-deploy job is skipped.
+The registration and sign-in paths also validate the schema lazily without trying to create database objects from the runtime app role.
 
 Required App-Level environment variables:
 
