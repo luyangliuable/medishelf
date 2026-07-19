@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Check, X } from 'lucide-react'
-import PhoneFrame from '@/components/PhoneFrame'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import type { Photo } from '@/lib/types'
@@ -49,8 +48,8 @@ export default function UploadCamera({ photos, setPhotos, onClose, onDone, error
   const last = photos[photos.length - 1]
 
   return (
-    <PhoneFrame>
-      <div className="relative min-h-svh bg-[#080b16] text-white after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgba(0,0,0,.45),transparent_30%,rgba(0,0,0,.5))]">
+    <div className="fixed inset-0 z-50 bg-[#080b16]">
+      <div className="relative mx-auto h-full w-full max-w-2xl bg-[#080b16] text-white after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(180deg,rgba(0,0,0,.45),transparent_30%,rgba(0,0,0,.5))]">
         <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 h-full w-full bg-neutral-900 object-cover" />
         <canvas ref={canvasRef} hidden />
         <input
@@ -109,6 +108,6 @@ export default function UploadCamera({ photos, setPhotos, onClose, onDone, error
           className="absolute bottom-9 left-1/2 z-10 size-[74px] -translate-x-1/2 rounded-full border-[6px] border-white bg-white/30"
         />
       </div>
-    </PhoneFrame>
+    </div>
   )
 }

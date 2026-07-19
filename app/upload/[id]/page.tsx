@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import EditUpload from '@/components/EditUpload'
-import PhoneFrame from '@/components/PhoneFrame'
+import CenteredFrame from '@/components/CenteredFrame'
 import { getSubmission, type SubmissionImage } from '@/lib/submissions'
 import { supabase } from '@/lib/supabaseClient'
 import { useUser } from '@/lib/useUser'
@@ -38,7 +38,7 @@ export default function EditUploadPage() {
     return () => { active = false }
   }, [loading, user, params.id, router])
 
-  if (loading || !ready || !user || !images) return <PhoneFrame />
+  if (loading || !ready || !user || !images) return <CenteredFrame />
 
   return <EditUpload submissionId={params.id} initialImages={images} user={user} />
 }

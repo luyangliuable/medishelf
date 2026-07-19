@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Bell, Upload } from 'lucide-react'
-import BottomMenu from '@/components/BottomMenu'
-import PhoneFrame from '@/components/PhoneFrame'
+import AppShell from '@/components/AppShell'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -20,12 +19,12 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user) getUploadCount(supabase, user.id).then(setCount)
   }, [user])
-  if (loading) return <PhoneFrame />
+  if (loading) return <AppShell active="/dashboard" />
   const initial = (profile.name || 'M').trim().charAt(0).toUpperCase()
   return (
-    <PhoneFrame>
-      <div className="px-6 pt-8 pb-28">
-        <div className="absolute right-5 top-7 flex items-center gap-2">
+    <AppShell active="/dashboard">
+      <div className="px-6 pt-8 pb-28 md:pb-10">
+        <div className="flex items-center justify-end gap-2">
           <Button asChild variant="ghost" size="icon">
             <Link href="/notifications" aria-label="Notifications">
               <Bell className="size-5" />
@@ -37,7 +36,7 @@ export default function DashboardPage() {
             </Avatar>
           </Link>
         </div>
-        <h1 className="mt-10 mb-5 text-[28px] font-bold tracking-tight">Hello, {profile.name}!</h1>
+        <h1 className="mt-6 mb-5 text-[28px] font-bold tracking-tight">Hello, {profile.name}!</h1>
         <div className="text-center text-[17px] font-extrabold">Thanks for being a Medi Mate!</div>
         <p className="mx-2 mt-3 mb-9 text-center text-sm leading-relaxed text-[#303653]">
           Please upload at least 4 photos of each medical product - front, back, and both sides. More photos help
@@ -63,7 +62,6 @@ export default function DashboardPage() {
           </Link>
         </Button>
       </div>
-      <BottomMenu active="/dashboard" />
-    </PhoneFrame>
+    </AppShell>
   )
 }

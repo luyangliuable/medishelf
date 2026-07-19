@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Pencil, Search, SlidersHorizontal } from 'lucide-react'
 import { toast } from 'sonner'
-import BottomMenu from '@/components/BottomMenu'
-import PhoneFrame from '@/components/PhoneFrame'
+import AppShell from '@/components/AppShell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -33,10 +32,10 @@ export default function HistoryPage() {
         .catch(() => setItems(fallback))
     }
   }, [user])
-  if (loading) return <PhoneFrame />
+  if (loading) return <AppShell active="/history" />
   return (
-    <PhoneFrame>
-      <div className="px-6 pt-8 pb-28">
+    <AppShell active="/history">
+      <div className="px-6 pt-8 pb-28 md:pb-10">
         <div className="mb-5 flex items-center justify-between">
           <h1 className="text-[23px] font-extrabold">Upload History</h1>
           <div className="flex gap-2">
@@ -58,7 +57,7 @@ export default function HistoryPage() {
             </Button>
           </div>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
           {items.slice(0, 4).map(item => {
             const label = statusLabel(item.status)
             return (
@@ -86,7 +85,6 @@ export default function HistoryPage() {
           })}
         </div>
       </div>
-      <BottomMenu active="/history" />
-    </PhoneFrame>
+    </AppShell>
   )
 }

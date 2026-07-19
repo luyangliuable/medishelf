@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import BottomMenu from '@/components/BottomMenu'
-import PhoneFrame from '@/components/PhoneFrame'
+import AppShell from '@/components/AppShell'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -44,12 +43,12 @@ export default function ProfilePage() {
     router.replace('/login')
   }
 
-  if (loading) return <PhoneFrame />
+  if (loading) return <AppShell active="/profile" />
   const initial = (profile.name || 'M').trim().charAt(0).toUpperCase()
 
   return (
-    <PhoneFrame>
-      <div className="px-6 pt-8 pb-28">
+    <AppShell active="/profile">
+      <div className="px-6 pt-8 pb-28 md:pb-10">
         <h1 className="mb-7 text-[26px] font-bold">Your Profile</h1>
         <div className="mb-9 flex flex-col items-center">
           <Avatar className="size-28 shadow-[0_12px_24px_rgba(18,26,74,0.1)]">
@@ -80,8 +79,7 @@ export default function ProfilePage() {
           Log out
         </Button>
       </div>
-      <BottomMenu active="/profile" />
-    </PhoneFrame>
+    </AppShell>
   )
 }
 

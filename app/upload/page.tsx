@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { CircleCheck, UploadCloud } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
-import PhoneFrame from '@/components/PhoneFrame'
+import CenteredFrame from '@/components/CenteredFrame'
 import UploadCamera from '@/components/UploadCamera'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -59,7 +59,7 @@ export default function UploadPage() {
     }
   }
 
-  if (loading) return <PhoneFrame />
+  if (loading) return <CenteredFrame />
   if (step === 'camera')
     return <UploadCamera photos={photos} setPhotos={setPhotos} onClose={reset} onDone={done} error={error} />
   if (step === 'complete') return <Complete onReset={reset} />
@@ -91,8 +91,8 @@ type IntroProps = {
 
 function Intro({ setStep, error, confirming, busy, onUpload, onCancel, onFinish, hasPhotos }: IntroProps) {
   return (
-    <PhoneFrame>
-      <div className="px-6 pt-8 pb-28">
+    <CenteredFrame wide>
+      <div className="flex flex-1 flex-col px-6 pt-8 pb-6">
         <PageHeader title="Upload Photos" />
         <p className="mt-7 text-center text-base leading-relaxed text-[#2d3458]">
           Submit a minimum of four photos of the product. Capture the front, sides and back to collect all the
@@ -115,14 +115,16 @@ function Intro({ setStep, error, confirming, busy, onUpload, onCancel, onFinish,
             {error}
           </p>
         )}
+        <div className="mt-auto pt-6">
+          <Button
+            onClick={onFinish}
+            disabled={!hasPhotos}
+            className="h-13 w-full rounded-3xl text-base font-extrabold"
+          >
+            Finish
+          </Button>
+        </div>
       </div>
-      <Button
-        onClick={onFinish}
-        disabled={!hasPhotos}
-        className="absolute inset-x-6 bottom-7 h-13 rounded-3xl text-base font-extrabold"
-      >
-        Finish
-      </Button>
       <Dialog open={confirming} onOpenChange={open => (!open ? onCancel() : null)}>
         <DialogContent className="max-w-[85%] rounded-3xl text-center">
           <DialogHeader>
@@ -141,14 +143,14 @@ function Intro({ setStep, error, confirming, busy, onUpload, onCancel, onFinish,
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </PhoneFrame>
+    </CenteredFrame>
   )
 }
 
 function Complete({ onReset }: { onReset: () => void }) {
   return (
-    <PhoneFrame>
-      <div className="px-6 pt-[210px] text-center">
+    <CenteredFrame>
+      <div className="px-6 pt-[210px] text-center md:pt-16 md:pb-16">
         <CircleCheck className="!size-14 mx-auto mb-4 text-accent" />
         <h1 className="mb-3 text-[28px] font-bold">Upload complete!</h1>
         <p className="mb-7 leading-relaxed text-muted-foreground">
@@ -161,6 +163,6 @@ function Complete({ onReset }: { onReset: () => void }) {
           <Link href="/dashboard">Go back to dashboard</Link>
         </Button>
       </div>
-    </PhoneFrame>
+    </CenteredFrame>
   )
 }

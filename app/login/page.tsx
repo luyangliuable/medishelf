@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/Logo'
-import PhoneFrame from '@/components/PhoneFrame'
+import CenteredFrame from '@/components/CenteredFrame'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -41,8 +41,8 @@ export default function LoginPage() {
   }
 
   return (
-    <PhoneFrame className="px-5 pt-8 pb-8">
-      <div className="mx-auto mt-13 mb-6 flex justify-center">
+    <CenteredFrame className="px-5 pt-8 pb-8">
+      <div className="mx-auto mt-13 mb-6 flex justify-center md:mt-4">
         <Logo />
       </div>
       <h1 className="mb-7 text-center text-[25px] font-bold">Let&apos;s sign you in</h1>
@@ -88,6 +88,6 @@ export default function LoginPage() {
       >
         {mode === 'signup' ? 'I already have an account' : 'Create an account'}
       </Button>
-    </PhoneFrame>
+    </CenteredFrame>
   )
 }

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CircleCheck, UploadCloud, X } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
-import PhoneFrame from '@/components/PhoneFrame'
+import CenteredFrame from '@/components/CenteredFrame'
 import UploadCamera from '@/components/UploadCamera'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -110,8 +110,8 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
 
   if (step === 'done') {
     return (
-      <PhoneFrame>
-        <div className="px-6 pt-[210px] text-center">
+      <CenteredFrame>
+        <div className="px-6 pt-[210px] text-center md:pt-16 md:pb-16">
           <CircleCheck className="!size-14 mx-auto mb-4 text-accent" />
           <h1 className="mb-3 text-[28px] font-bold">Changes saved!</h1>
           <p className="mb-7 leading-relaxed text-muted-foreground">
@@ -129,13 +129,13 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
             View another upload
           </Button>
         </div>
-      </PhoneFrame>
+      </CenteredFrame>
     )
   }
 
   return (
-    <PhoneFrame>
-      <div className="px-6 pt-8 pb-28">
+    <CenteredFrame wide>
+      <div className="flex flex-1 flex-col px-6 pt-8 pb-6">
         <PageHeader title="Edit Upload" />
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Remove photos you no longer want, or add more. Minimum {MIN_PHOTOS} photos.
@@ -184,15 +184,16 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
             {error}
           </p>
         )}
+        <div className="mt-auto pt-6">
+          <Button
+            onClick={requestSave}
+            disabled={saveDisabled}
+            className="h-13 w-full rounded-3xl text-base font-extrabold"
+          >
+            Save changes
+          </Button>
+        </div>
       </div>
-
-      <Button
-        onClick={requestSave}
-        disabled={saveDisabled}
-        className="absolute inset-x-6 bottom-7 h-13 rounded-3xl text-base font-extrabold"
-      >
-        Save changes
-      </Button>
 
       <Dialog open={step === 'confirm'} onOpenChange={open => (!open ? setStep('review') : null)}>
         <DialogContent className="max-w-[85%] rounded-3xl text-center">
@@ -212,7 +213,7 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </PhoneFrame>
+    </CenteredFrame>
   )
 }
 

@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import PhoneFrame from '@/components/PhoneFrame'
+import CenteredFrame from '@/components/CenteredFrame'
 import { supabase } from '@/lib/supabaseClient'
 
 export default function SplashPage() {
@@ -17,14 +17,14 @@ export default function SplashPage() {
   }, [router])
 
   return (
-    <PhoneFrame className="px-6">
+    <CenteredFrame className="px-6">
       <Image
         src="/images/medishelf.png"
         alt="MediShelf"
         width={220}
         height={113}
         priority
-        className="mx-auto mt-[205px] mb-7 drop-shadow-[0_8px_18px_rgba(18,26,74,0.08)]"
+        className="mx-auto mt-[205px] mb-7 drop-shadow-[0_8px_18px_rgba(18,26,74,0.08)] md:mt-24"
       />
       <div className="text-center text-[25px] font-extrabold leading-tight tracking-tight">
         Help us learn what&apos;s
@@ -36,6 +36,6 @@ export default function SplashPage() {
         <span className="size-2 rounded-full bg-neutral-300" />
         <span className="h-2 w-5 rounded-full bg-foreground" />
       </div>
-    </PhoneFrame>
+    </CenteredFrame>
   )
 }

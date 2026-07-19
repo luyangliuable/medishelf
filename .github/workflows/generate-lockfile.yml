@@ -1,0 +1,26 @@
+name: Generate package lock
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_json:
+        description: Base64 encoded package.json
+        required: true
+
+jobs:
+  lockfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write package.json
+        run: |
+          printf '%s' '${{ inputs.package_json }}' | base64 -d > package.json
+          printf 'registry=https://registry.npmjs.org/\n' > .npmrc
+      - name: Generate package-lock.json
+        run: npm install --package-lock-only --registry=https://registry.npmjs.org/
+      - name: Check registry URLs
+        run: '! grep -q "artifactory.internal.cba" package-lock.json'
+      - name: Upload lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-lock
+          path: package-lock.json

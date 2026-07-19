@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { SlidersHorizontal } from 'lucide-react'
-import BottomMenu from '@/components/BottomMenu'
+import AppShell from '@/components/AppShell'
 import PageHeader from '@/components/PageHeader'
-import PhoneFrame from '@/components/PhoneFrame'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -30,8 +29,8 @@ export default function NotificationsPage() {
   const isActive = filter !== 'All'
 
   return (
-    <PhoneFrame>
-      <div className="px-6 pt-8 pb-28">
+    <AppShell active="/notifications">
+      <div className="px-6 pt-8 pb-28 md:pb-10">
         <div className="mb-5 flex items-center justify-between">
           <PageHeader title="Notifications" />
           <Button
@@ -85,7 +84,6 @@ export default function NotificationsPage() {
           )}
         </div>
       </div>
-      <BottomMenu active="/notifications" />
-    </PhoneFrame>
+    </AppShell>
   )
 }
