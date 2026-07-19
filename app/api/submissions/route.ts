@@ -1,27 +1,23 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
 import { createUploadPath } from '@/lib/filePaths'
+import { createSubmission, listSubmissions } from '@/lib/database/submissions'
 import { saveUpload } from '@/lib/server/files'
-import { currentUser, unauthorized } from '@/lib/server/session'
-import { withUserDb } from '@/lib/server/db'
-import type { Submission } from '@/lib/types'
+import { authOptions } from '@/lib/server/auth'
+
+function unauthorized() {
+  return NextResponse.json({ error: 'Please sign in' }, { status: 401 })
+}
 
 export async function GET() {
-  const user = await currentUser()
-  if (!user) return unauthorized()
-  const rows = await withUserDb(user.id, async client => {
-    const result = await client.query<Submission>(
-      `select id, name, status, created_at from public.photo_submissions
-       where created_by = $1 order by created_at desc`,
-      [user.id]
-    )
-    return result.rows
-  })
-  return NextResponse.json({ submissions: rows })
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) return unauthorized()
+  return NextResponse.json({ submissions: await listSubmissions(session.user.id) })
 }
 
 export async function POST(request: Request) {
-  const user = await currentUser()
-  if (!user) return unauthorized()
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) return unauthorized()
   const files = (await request.formData()).getAll('files').filter((file): file is File => file instanceof File)
   if (!files.length) return NextResponse.json({ error: 'Please add photos' }, { status: 400 })
   const uploaded = await Promise.all(files.map(async file => {
@@ -29,20 +25,6 @@ export async function POST(request: Request) {
     await saveUpload(path, file)
     return { path, size: file.size, mime: file.type }
   }))
-  const data = await withUserDb(user.id, async client => {
-    const submission = await client.query<{ id: string }>(
-      `insert into public.photo_submissions (created_by, name, manufacturer, status, reviewed)
-       values ($1, 'Product upload', 'Unknown', 'in_review', false) returning id`,
-      [user.id]
-    )
-    for (const file of uploaded) {
-      await client.query(
-        `insert into public.photo_submission_images
-         (submission_id, storage_path, size_bytes, mime_type) values ($1, $2, $3, $4)`,
-        [submission.rows[0].id, file.path, file.size, file.mime]
-      )
-    }
-    return submission.rows[0]
-  })
+  const data = await createSubmission(session.user.id, uploaded)
   return NextResponse.json({ data })
 }

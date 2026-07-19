@@ -1,18 +1,16 @@
 import type { Profile, User } from '@/lib/types'
 
 export function profileFromUser(user: User | null | undefined): Profile {
-  const data = user?.user_metadata ?? {}
   const email = user?.email ?? ''
-  const fallbackName = email.split('@')[0]
   return {
-    name: data.name?.trim() ? data.name : (fallbackName ? fallbackName : 'Christie'),
-    staffEmail: data.staffEmail?.trim() ? data.staffEmail : email,
-    phone: data.phone ?? ''
+    name: user?.name?.trim() ? user.name : (email.split('@')[0] || 'Christie'),
+    staffEmail: email,
+    phone: user?.phone ?? ''
   }
 }
 
 export async function saveProfile(profile: Profile) {
-  const response = await fetch('/api/auth/profile', {
+  const response = await fetch('/api/profile', {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(profile)

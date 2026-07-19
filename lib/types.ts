@@ -1,6 +1,8 @@
 export type User = {
   id: string
   email: string
+  name: string
+  phone: string
   user_metadata: Record<string, string>
 }
 

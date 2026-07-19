@@ -28,11 +28,49 @@ docker compose down -v
 
 ## Run locally without Docker
 
-Start a PostgreSQL database, copy `.env.local.example` to `.env.local`, then update `DATABASE_URL`.
+Start a PostgreSQL database, copy `.env.local.example` to `.env.local`, then update `DATABASE_URL`, `SESSION_SECRET`, and `NEXT_PUBLIC_APP_URL`.
 
 ```bash
 npm install
 npm run dev
 ```
 
-The database init scripts in `db/init` create the auth compatibility schema, the unchanged upload tables, and the local storage bucket record.
+## Database
+
+Drizzle defines the application schema in `lib/database/schema`.
+
+```bash
+npm run db:generate
+npm run db:migrate
+npm run db:studio
+```
+
+The schema keeps the existing upload tables intact:
+
+- `photo_submissions`
+- `photo_submission_images`
+
+NextAuth uses the app-owned `auth.users` table for credentials-based sign in. The app accepts `SESSION_SECRET` as the NextAuth secret so it matches DigitalOcean App Platform env var naming.
+
+## DigitalOcean App Platform
+
+Use a pre-deploy job for migrations instead of running `db:push` at web startup. The job should install dev dependencies because Drizzle Kit is a development dependency:
+
+```bash
+npm ci --include=dev && npm run do:predeploy
+```
+
+The pre-deploy script runs reviewed Drizzle migrations:
+
+```bash
+npm run db:migrate
+```
+
+Required App-Level environment variables:
+
+- `DATABASE_URL`
+- `SESSION_SECRET`
+- `UPLOAD_DIR`
+- `NEXT_PUBLIC_APP_URL`
+
+Use `.do/app.yaml.example` as a starting point for an App Platform spec. Local filesystem uploads on App Platform are ephemeral, so use persistent object storage before relying on uploads in production.

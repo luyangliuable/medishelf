@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Logo from '@/components/Logo'
 import CenteredFrame from '@/components/CenteredFrame'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { signIn, signUp } from '@/lib/authClient'
 
 type Mode = 'signin' | 'signup'
 type Form = { name: string; email: string; phone: string; password: string }
@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<Mode>('signin')
   const [form, setForm] = useState<Form>({ name: '', email: '', phone: '', password: '' })
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const router = useRouter()
 
   const update = (key: keyof Form) => (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -25,11 +26,29 @@ export default function LoginPage() {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError('')
-    const auth = mode === 'signup'
-      ? await signUp({ name: form.name, staffEmail: form.email, phone: form.phone, password: form.password })
-      : await signIn(form.email, form.password)
-    if (auth.error) setError(auth.error.message)
-    else router.replace('/dashboard')
+    setSubmitting(true)
+    try {
+      if (mode === 'signup') {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(form)
+        })
+        const data = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(data.error ?? 'Unable to create account')
+      }
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: form.email,
+        password: form.password
+      })
+      if (result?.error) throw new Error('Invalid email or password')
+      router.replace('/dashboard')
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -66,8 +85,8 @@ export default function LoginPage() {
                 {error}
               </p>
             )}
-            <Button type="submit" size="xl" className="mt-6 w-full">
-              {mode === 'signup' ? 'Create account' : 'Sign in'}
+            <Button type="submit" size="xl" className="mt-6 w-full" disabled={submitting}>
+              {submitting ? 'Please wait...' : mode === 'signup' ? 'Create account' : 'Sign in'}
             </Button>
           </form>
         </CardContent>
