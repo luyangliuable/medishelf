@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { profileFromUser } from '@/lib/profile'
-import { supabase } from '@/lib/supabaseClient'
 import { getUploadCount } from '@/lib/submissions'
 import { useUser } from '@/lib/useUser'
 
@@ -17,7 +16,7 @@ export default function DashboardPage() {
   const [count, setCount] = useState(14)
   const profile = profileFromUser(user)
   useEffect(() => {
-    if (user) getUploadCount(supabase, user.id).then(setCount)
+    if (user) getUploadCount().then(setCount)
   }, [user])
   if (loading) return <AppShell active="/dashboard" />
   const initial = (profile.name || 'M').trim().charAt(0).toUpperCase()

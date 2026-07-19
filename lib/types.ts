@@ -1,6 +1,8 @@
-import type { User as SupabaseUser } from '@supabase/supabase-js'
-
-export type User = SupabaseUser
+export type User = {
+  id: string
+  email: string
+  user_metadata: Record<string, string>
+}
 
 export type Profile = {
   name: string
@@ -21,6 +23,3 @@ export type Photo = {
   file: File
   url: string
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Database = any

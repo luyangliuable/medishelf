@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { hasSupabaseConfig, supabase } from '@/lib/supabaseClient'
+import { getCurrentUser } from '@/lib/authClient'
 import type { User } from '@/lib/types'
 
 export function useUser({ requireAuth = true }: { requireAuth?: boolean } = {}) {
@@ -11,19 +11,12 @@ export function useUser({ requireAuth = true }: { requireAuth?: boolean } = {}) 
   const router = useRouter()
 
   useEffect(() => {
-    if (!hasSupabaseConfig || !supabase) {
-      setUser(null)
-      setLoading(false)
-      if (requireAuth) router.replace('/login')
-      return
-    }
-
     let active = true
-    supabase.auth.getUser().then(({ data }) => {
+    getCurrentUser().then(current => {
       if (!active) return
-      setUser(data.user ?? null)
+      setUser(current)
       setLoading(false)
-      if (requireAuth && !data.user) router.replace('/login')
+      if (requireAuth && !current) router.replace('/login')
     })
     return () => { active = false }
   }, [requireAuth, router])

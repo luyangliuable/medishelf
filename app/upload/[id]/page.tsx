@@ -6,7 +6,6 @@ import { toast } from 'sonner'
 import EditUpload from '@/components/EditUpload'
 import CenteredFrame from '@/components/CenteredFrame'
 import { getSubmission, type SubmissionImage } from '@/lib/submissions'
-import { supabase } from '@/lib/supabaseClient'
 import { useUser } from '@/lib/useUser'
 
 export default function EditUploadPage() {
@@ -19,7 +18,7 @@ export default function EditUploadPage() {
   useEffect(() => {
     if (loading || !user) return
     let active = true
-    getSubmission(supabase, user.id, params.id)
+    getSubmission(params.id)
       .then(result => {
         if (!active) return
         if (!result) {

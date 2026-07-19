@@ -8,8 +8,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { signOut as signOutUser } from '@/lib/authClient'
 import { profileFromUser, saveProfile } from '@/lib/profile'
-import { supabase } from '@/lib/supabaseClient'
 import type { Profile } from '@/lib/types'
 import { useUser } from '@/lib/useUser'
 
@@ -27,10 +27,10 @@ export default function ProfilePage() {
     setProfile({ ...profile, [key]: event.target.value })
 
   const submit = async () => {
-    if (!supabase || !user?.id) return
+    if (!user?.id) return
     setSaving(true)
     try {
-      const { error } = await saveProfile(supabase, profile)
+      const { error } = await saveProfile(profile)
       if (error) toast.error(error.message)
       else toast.success('Profile saved')
     } finally {
@@ -39,7 +39,7 @@ export default function ProfilePage() {
   }
 
   const signOut = async () => {
-    if (supabase) await supabase.auth.signOut()
+    await signOutUser()
     router.replace('/login')
   }
 

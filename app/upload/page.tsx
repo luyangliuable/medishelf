@@ -17,7 +17,6 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { uploadSubmission } from '@/lib/submissions'
-import { supabase } from '@/lib/supabaseClient'
 import type { Photo } from '@/lib/types'
 import { useUser } from '@/lib/useUser'
 
@@ -43,14 +42,14 @@ export default function UploadPage() {
   }
 
   const upload = async () => {
-    if (!supabase || !user?.id) {
+    if (!user?.id) {
       setError('Please sign in before uploading.')
       return
     }
     setBusy(true)
     setError('')
     try {
-      await uploadSubmission(supabase, user.id, photos.map(p => p.file))
+      await uploadSubmission(photos.map(p => p.file))
       setStep('complete')
     } catch (err) {
       setError((err as Error).message)

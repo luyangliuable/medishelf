@@ -12,7 +12,7 @@ export default function AppShell({ children, active, className }: Props) {
   return (
     <div className="min-h-svh md:pl-64">
       <Navigation active={active} />
-      <main className={cn('mx-auto w-full max-w-[393px] md:max-w-3xl', className)}>
+      <main className={cn('mx-auto w-full md:max-w-3xl', className)}>
         {children}
       </main>
     </div>

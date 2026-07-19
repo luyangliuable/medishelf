@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { supabase, hasSupabaseConfig } from '@/lib/supabaseClient'
+import { signIn, signUp } from '@/lib/authClient'
 
 type Mode = 'signin' | 'signup'
 type Form = { name: string; email: string; phone: string; password: string }
@@ -25,17 +25,9 @@ export default function LoginPage() {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError('')
-    if (!hasSupabaseConfig || !supabase) {
-      setError('Supabase is not configured. Copy .env.local.example to .env.local.')
-      return
-    }
     const auth = mode === 'signup'
-      ? await supabase.auth.signUp({
-          email: form.email,
-          password: form.password,
-          options: { data: { name: form.name, staffEmail: form.email, phone: form.phone } }
-        })
-      : await supabase.auth.signInWithPassword({ email: form.email, password: form.password })
+      ? await signUp({ name: form.name, staffEmail: form.email, phone: form.phone, password: form.password })
+      : await signIn(form.email, form.password)
     if (auth.error) setError(auth.error.message)
     else router.replace('/dashboard')
   }

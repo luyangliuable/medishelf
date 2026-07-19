@@ -4,14 +4,14 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import CenteredFrame from '@/components/CenteredFrame'
-import { supabase } from '@/lib/supabaseClient'
+import { getCurrentUser } from '@/lib/authClient'
 
 export default function SplashPage() {
   const router = useRouter()
   useEffect(() => {
     const timer = setTimeout(async () => {
-      const session = await supabase?.auth.getSession()
-      router.replace(session?.data.session ? '/dashboard' : '/login')
+      const user = await getCurrentUser()
+      router.replace(user ? '/dashboard' : '/login')
     }, 1500)
     return () => clearTimeout(timer)
   }, [router])

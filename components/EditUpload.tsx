@@ -17,7 +17,6 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { supabase } from '@/lib/supabaseClient'
 import { updateSubmission, type SubmissionImage } from '@/lib/submissions'
 import type { Photo, User } from '@/lib/types'
 
@@ -74,7 +73,7 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
   }
 
   const save = async () => {
-    if (!supabase || !user.id) {
+    if (!user.id) {
       setError('Please sign in before saving.')
       setStep('review')
       return
@@ -83,7 +82,7 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
     setError('')
     setStep('saving')
     try {
-      await updateSubmission(supabase, user.id, submissionId, {
+      await updateSubmission(submissionId, {
         addFiles: newPhotos.map(p => p.file),
         removeImageIds: existing.filter(e => e.pendingDelete).map(e => e.id)
       })

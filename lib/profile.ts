@@ -1,23 +1,22 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database, Profile, User } from '@/lib/types'
+import type { Profile, User } from '@/lib/types'
 
 export function profileFromUser(user: User | null | undefined): Profile {
-  const data = (user?.user_metadata as Record<string, string> | undefined) ?? {}
+  const data = user?.user_metadata ?? {}
   const email = user?.email ?? ''
+  const fallbackName = email.split('@')[0]
   return {
-    name: data.name || email.split('@')[0] || 'Christie',
-    staffEmail: data.staffEmail || email || '',
-    phone: data.phone || ''
+    name: data.name?.trim() ? data.name : (fallbackName ? fallbackName : 'Christie'),
+    staffEmail: data.staffEmail?.trim() ? data.staffEmail : email,
+    phone: data.phone ?? ''
   }
 }
 
-export async function saveProfile(supabase: SupabaseClient<Database> | null, profile: Profile) {
-  if (!supabase) return { error: new Error('Supabase is not configured') }
-  return supabase.auth.updateUser({
-    data: {
-      name: profile.name,
-      staffEmail: profile.staffEmail,
-      phone: profile.phone
-    }
+export async function saveProfile(profile: Profile) {
+  const response = await fetch('/api/auth/profile', {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(profile)
   })
+  const data = await response.json().catch(() => ({}))
+  return response.ok ? { error: null } : { error: new Error(data.error ?? 'Unable to save profile') }
 }

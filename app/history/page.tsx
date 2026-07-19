@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { formatDate, statusLabel } from '@/lib/filePaths'
 import { getHistory } from '@/lib/submissions'
-import { supabase } from '@/lib/supabaseClient'
 import type { Submission } from '@/lib/types'
 import { useUser } from '@/lib/useUser'
 
@@ -27,7 +26,7 @@ export default function HistoryPage() {
   const [items, setItems] = useState<Submission[]>(fallback)
   useEffect(() => {
     if (user) {
-      getHistory(supabase, user.id)
+      getHistory()
         .then(data => setItems(data.length ? data : fallback))
         .catch(() => setItems(fallback))
     }
