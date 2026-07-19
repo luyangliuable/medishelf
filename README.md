@@ -75,7 +75,7 @@ Required App-Level environment variables:
 
 Optional database TLS variables:
 
-- `DATABASE_SSL_REJECT_UNAUTHORIZED=false` lets DigitalOcean managed Postgres connect when the runtime does not trust the database CA chain.
+- `DATABASE_SSL_REJECT_UNAUTHORIZED=false` lets DigitalOcean managed Postgres connect when the runtime does not trust the database CA chain. The app keeps TLS enabled but normalizes `sslmode=require` before passing SSL options to `pg`.
 - `DATABASE_CA_CERT` can be set to the managed database CA certificate to verify TLS instead.
 
 Use `.do/app.yaml.example` as a starting point for an App Platform spec. Local filesystem uploads on App Platform are ephemeral, so use persistent object storage before relying on uploads in production.
