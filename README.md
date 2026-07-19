@@ -66,6 +66,8 @@ The pre-deploy script runs reviewed Drizzle migrations:
 npm run db:migrate
 ```
 
+The production start script also runs an idempotent schema check before `next start` so a new database has the required tables before the first request.
+
 Required App-Level environment variables:
 
 - `DATABASE_URL`
