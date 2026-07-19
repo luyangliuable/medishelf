@@ -13,9 +13,24 @@ function loadLocalEnv() {
 
 loadLocalEnv()
 
+function databaseSslConfig() {
+  const url = process.env.DATABASE_URL ?? ''
+  if (!url.includes('sslmode=require')) return undefined
+
+  const ca = process.env.DATABASE_CA_CERT?.replace(/\\n/g, '\n')
+  if (ca) return { ca, rejectUnauthorized: true }
+
+  return {
+    rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED === 'true'
+  }
+}
+
 export default {
   schema: './lib/database/schema/index.ts',
   out: './drizzle',
   dialect: 'postgresql',
-  dbCredentials: { url: process.env.DATABASE_URL ?? '' }
+  dbCredentials: {
+    url: process.env.DATABASE_URL ?? '',
+    ssl: databaseSslConfig()
+  }
 } satisfies Config

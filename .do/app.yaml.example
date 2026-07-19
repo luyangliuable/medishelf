@@ -16,6 +16,9 @@ services:
       - key: DATABASE_URL
         scope: RUN_TIME
         type: SECRET
+      - key: DATABASE_SSL_REJECT_UNAUTHORIZED
+        scope: RUN_TIME
+        value: "false"
       - key: SESSION_SECRET
         scope: RUN_TIME
         type: SECRET
@@ -39,3 +42,6 @@ jobs:
       - key: DATABASE_URL
         scope: RUN_TIME
         type: SECRET
+      - key: DATABASE_SSL_REJECT_UNAUTHORIZED
+        scope: RUN_TIME
+        value: "false"
