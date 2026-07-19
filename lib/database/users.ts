@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { eq } from 'drizzle-orm'
 import { db } from '@/lib/database/client'
 import { ensureDatabaseSchema } from '@/lib/database/ensureSchema'
@@ -43,6 +44,7 @@ export async function createUser(input: RegisterInput) {
     phone: input.phone.trim()
   }
   const result = await db.insert(users).values({
+    id: randomUUID(),
     email,
     encryptedPassword: await hashPassword(input.password),
     rawUserMetaData: metadata

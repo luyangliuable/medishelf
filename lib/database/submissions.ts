@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { and, count, desc, eq, inArray, sql } from 'drizzle-orm'
 import { db } from '@/lib/database/client'
 import { photoSubmissionImages, photoSubmissions } from '@/lib/database/schema'
@@ -75,6 +76,7 @@ export async function createSubmission(userId: string, files: UploadedFile[]) {
     const submission = submissions[0]
     if (files.length) {
       await tx.insert(photoSubmissionImages).values(files.map(file => ({
+        id: randomUUID(),
         submissionId: submission.id,
         storagePath: file.path,
         sizeBytes: file.size,
@@ -97,6 +99,7 @@ export async function updateSubmissionImages(submissionId: number, userId: strin
       .returning({ storagePath: photoSubmissionImages.storagePath }) : []
     if (files.length) {
       await tx.insert(photoSubmissionImages).values(files.map(file => ({
+        id: randomUUID(),
         submissionId,
         storagePath: file.path,
         sizeBytes: file.size,

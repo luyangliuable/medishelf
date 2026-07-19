@@ -1,4 +1,4 @@
-import { jsonb, pgSchema, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 
 export type UserMetadata = {
   name?: string
@@ -6,10 +6,8 @@ export type UserMetadata = {
   phone?: string
 }
 
-export const authSchema = pgSchema('auth')
-
-export const users = authSchema.table('users', {
-  id: uuid('id').defaultRandom().primaryKey(),
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey(),
   email: text('email').notNull().unique(),
   encryptedPassword: text('encrypted_password').notNull(),
   rawUserMetaData: jsonb('raw_user_meta_data').$type<UserMetadata>().notNull().default({}),

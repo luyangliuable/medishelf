@@ -50,7 +50,7 @@ The schema keeps the existing upload tables intact:
 - `photo_submissions`
 - `photo_submission_images`
 
-NextAuth uses the app-owned `auth.users` table for credentials-based sign in. The app accepts `SESSION_SECRET` as the NextAuth secret so it matches DigitalOcean App Platform env var naming.
+NextAuth uses the app-owned `public.users` table for credentials-based sign in. The app accepts `SESSION_SECRET` as the NextAuth secret so it matches DigitalOcean App Platform env var naming.
 
 ## DigitalOcean App Platform
 
@@ -60,13 +60,13 @@ Use a pre-deploy job for migrations instead of running `db:push` at web startup.
 npm ci --include=dev && npm run do:predeploy
 ```
 
-The pre-deploy script validates that the externally provisioned schema exists before the first request:
+The pre-deploy script creates the required app tables in the existing `public` schema before the first request:
 
 ```bash
 npm run do:predeploy
 ```
 
-The registration and sign-in paths also validate the schema lazily without trying to create database objects from the runtime app role.
+The registration and sign-in paths also ensure these tables lazily, without creating additional schemas or requiring database-level create privileges.
 
 Required App-Level environment variables:
 
