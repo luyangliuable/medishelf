@@ -35,7 +35,6 @@ try {
 }
 
 const statements = [
-  'create extension if not exists pgcrypto',
   'create schema if not exists auth',
   'create schema if not exists storage',
   `create or replace function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('app.current_user_id', true), '')::uuid $$`,

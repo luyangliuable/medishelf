@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { db } from '@/lib/database/client'
+import { ensureDatabaseSchema } from '@/lib/database/ensureSchema'
 import { users, type UserMetadata, type UserRow } from '@/lib/database/schema'
 import { hashPassword } from '@/lib/server/password'
 import type { Profile, User } from '@/lib/types'
@@ -22,16 +23,19 @@ export function toAppUser(user: UserRow): User {
 }
 
 export async function findUserByEmail(email: string) {
+  await ensureDatabaseSchema()
   const result = await db.select().from(users).where(eq(users.email, normalizeEmail(email))).limit(1)
   return result[0] ?? null
 }
 
 export async function findUserById(id: string) {
+  await ensureDatabaseSchema()
   const result = await db.select().from(users).where(eq(users.id, id)).limit(1)
   return result[0] ?? null
 }
 
 export async function createUser(input: RegisterInput) {
+  await ensureDatabaseSchema()
   const email = normalizeEmail(input.email)
   const metadata: UserMetadata = {
     name: input.name.trim(),
@@ -47,6 +51,7 @@ export async function createUser(input: RegisterInput) {
 }
 
 export async function updateUserProfile(userId: string, profile: Profile) {
+  await ensureDatabaseSchema()
   const email = normalizeEmail(profile.staffEmail)
   const metadata: UserMetadata = {
     name: profile.name.trim(),

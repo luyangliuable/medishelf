@@ -60,13 +60,13 @@ Use a pre-deploy job for migrations instead of running `db:push` at web startup.
 npm ci --include=dev && npm run do:predeploy
 ```
 
-The pre-deploy script runs reviewed Drizzle migrations:
+The pre-deploy script runs an idempotent schema check so a new database has the required tables before the first request:
 
 ```bash
-npm run db:migrate
+npm run do:predeploy
 ```
 
-The production start script also runs an idempotent schema check before `next start` so a new database has the required tables before the first request.
+The registration and sign-in paths also verify the schema lazily, which protects first deploys when a pre-deploy job is skipped.
 
 Required App-Level environment variables:
 
