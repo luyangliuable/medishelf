@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import AuthProvider from '@/app/providers/AuthProvider'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
@@ -12,8 +13,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-background text-foreground min-h-svh antialiased">
-        {children}
-        <Toaster position="top-center" duration={1000} closeButton />
+        <AuthProvider>
+          {children}
+          <Toaster position="top-center" duration={1000} closeButton />
+        </AuthProvider>
       </body>
     </html>
   )

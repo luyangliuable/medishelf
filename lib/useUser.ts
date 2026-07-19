@@ -1,25 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getCurrentUser } from '@/lib/authClient'
+import { useSession } from 'next-auth/react'
 import type { User } from '@/lib/types'
 
 export function useUser({ requireAuth = true }: { requireAuth?: boolean } = {}) {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { data: session, status } = useSession()
   const router = useRouter()
+  const loading = status === 'loading'
+  const user = session?.user ? ({
+    id: session.user.id,
+    email: session.user.email,
+    name: session.user.name,
+    phone: session.user.phone,
+    user_metadata: {
+      name: session.user.name,
+      staffEmail: session.user.email,
+      phone: session.user.phone
+    }
+  } satisfies User) : null
 
   useEffect(() => {
-    let active = true
-    getCurrentUser().then(current => {
-      if (!active) return
-      setUser(current)
-      setLoading(false)
-      if (requireAuth && !current) router.replace('/login')
-    })
-    return () => { active = false }
-  }, [requireAuth, router])
+    if (requireAuth && status === 'unauthenticated') router.replace('/login')
+  }, [requireAuth, router, status])
 
   return { user, loading }
 }

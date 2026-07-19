@@ -1,17 +1,12 @@
 import { NextResponse } from 'next/server'
-import { currentUser, unauthorized } from '@/lib/server/session'
-import { withUserDb } from '@/lib/server/db'
+import { getServerSession } from 'next-auth'
+import { countSubmissions } from '@/lib/database/submissions'
+import { authOptions } from '@/lib/server/auth'
 
 export async function GET() {
-  const user = await currentUser()
-  if (!user) return unauthorized()
-  const count = await withUserDb(user.id, async client => {
-    const { rows } = await client.query<{ count: number }>(
-      `select count(*)::int as count from public.photo_submissions
-       where created_by = $1`,
-      [user.id]
-    )
-    return rows[0]?.count ?? 0
-  })
-  return NextResponse.json({ count })
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Please sign in' }, { status: 401 })
+  }
+  return NextResponse.json({ count: await countSubmissions(session.user.id) })
 }

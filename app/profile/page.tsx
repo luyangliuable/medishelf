@@ -1,14 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { signOut } from 'next-auth/react'
 import { toast } from 'sonner'
 import AppShell from '@/components/AppShell'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { signOut as signOutUser } from '@/lib/authClient'
 import { profileFromUser, saveProfile } from '@/lib/profile'
 import type { Profile } from '@/lib/types'
 import { useUser } from '@/lib/useUser'
@@ -17,8 +16,6 @@ export default function ProfilePage() {
   const { user, loading } = useUser()
   const [profile, setProfile] = useState<Profile>({ name: '', staffEmail: '', phone: '' })
   const [saving, setSaving] = useState(false)
-  const router = useRouter()
-
   useEffect(() => {
     if (user) setProfile(profileFromUser(user))
   }, [user])
@@ -38,9 +35,8 @@ export default function ProfilePage() {
     }
   }
 
-  const signOut = async () => {
-    await signOutUser()
-    router.replace('/login')
+  const logOut = async () => {
+    await signOut({ callbackUrl: '/login' })
   }
 
   if (loading) return <AppShell active="/profile" />
@@ -74,7 +70,7 @@ export default function ProfilePage() {
           variant="outline"
           size="xl"
           className="mt-3 w-full rounded-2xl text-muted-foreground"
-          onClick={signOut}
+          onClick={logOut}
         >
           Log out
         </Button>
