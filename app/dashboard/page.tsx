@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { Bell, Upload } from 'lucide-react'
 import AppShell from '@/components/AppShell'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -25,15 +24,15 @@ export default function DashboardPage() {
       <div className="px-6 pt-8 pb-28 md:pb-10">
         <div className="flex items-center justify-end gap-2">
           <Button asChild variant="ghost" size="icon">
-            <Link href="/notifications" aria-label="Notifications">
+            <a href="/notifications" aria-label="Notifications">
               <Bell className="size-5" />
-            </Link>
+            </a>
           </Button>
-          <Link href="/profile" aria-label="Profile">
+          <a href="/profile" aria-label="Profile">
             <Avatar className="size-9 shadow-[0_6px_14px_rgba(18,26,74,0.08)]">
               <AvatarFallback className="bg-[#d9d6ff] text-foreground">{initial}</AvatarFallback>
             </Avatar>
-          </Link>
+          </a>
         </div>
         <h1 className="mt-6 mb-5 text-[28px] font-bold tracking-tight">Hello, {profile.name}!</h1>
         <div className="text-center text-[17px] font-extrabold">Thanks for being a Medi Mate!</div>
@@ -49,16 +48,17 @@ export default function DashboardPage() {
             </strong>
             <p className="mb-5 text-muted-foreground">Keep up the great work!</p>
             <Button asChild variant="outline" size="sm" className="rounded-full">
-              <Link href="/history">View upload history</Link>
+              <a href="/history">View upload history</a>
             </Button>
           </CardContent>
         </Card>
         <div className="mb-4 text-[17px] font-extrabold">Upload photos</div>
         <Button asChild size="xl" className="w-full h-auto flex-col gap-2 rounded-3xl py-6 text-base shadow-[0_14px_28px_rgba(18,26,74,0.18)]">
-          <Link href="/upload">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/upload">
             <Upload className="!size-6" />
             Upload photos
-          </Link>
+          </a>
         </Button>
       </div>
     </AppShell>

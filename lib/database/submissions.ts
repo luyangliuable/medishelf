@@ -3,6 +3,7 @@ import { and, count, desc, eq, inArray, sql } from 'drizzle-orm'
 import { db } from '@/lib/database/client'
 import { photoSubmissionImages, photoSubmissions } from '@/lib/database/schema'
 import { publicFileUrl } from '@/lib/server/files'
+import type { ProductAnalysis } from '@/lib/server/productAnalysis'
 import type { Submission } from '@/lib/types'
 
 export type UploadedFile = { path: string; size: number; mime: string }
@@ -84,6 +85,35 @@ export async function createSubmission(userId: string, files: UploadedFile[]) {
       })))
     }
     return submission
+  })
+}
+
+/**
+ * Applies a validated product analysis to an owned submission.
+ *
+ * @param submissionId - Submission to update.
+ * @param userId - Owner of the submission.
+ * @param analysis - Validated product details.
+ * @returns Whether the owned submission was updated.
+ */
+export async function updateSubmissionAnalysis(
+  submissionId: number,
+  userId: string,
+  analysis: ProductAnalysis
+) {
+  return db.transaction(async tx => {
+    await setCurrentUser(tx, userId)
+    const rows = await tx.update(photoSubmissions).set({
+      name: analysis.name,
+      manufacturer: analysis.manufacturer,
+      status: 'complete',
+      reviewed: true,
+      updatedAt: new Date()
+    }).where(and(
+      eq(photoSubmissions.id, submissionId),
+      eq(photoSubmissions.createdBy, userId)
+    )).returning({ id: photoSubmissions.id })
+    return rows.length === 1
   })
 }
 

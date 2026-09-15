@@ -1,5 +1,12 @@
 import type { Submission } from '@/lib/types'
 
+export type SubmissionProcessing = 'complete' | 'in_review'
+
+export type UploadResult = {
+  data: { id: number }
+  processing: SubmissionProcessing
+}
+
 export type SubmissionImage = {
   id: string
   storage_path: string
@@ -31,12 +38,12 @@ export async function getSubmission(submissionId: string | number) {
   return await response.json() as { submission: Submission; images: SubmissionImage[] }
 }
 
-export async function uploadSubmission(files: File[]) {
+export async function uploadSubmission(files: File[]): Promise<UploadResult> {
   const form = new FormData()
   files.forEach(file => form.append('files', file))
   const response = await fetch('/api/submissions', { method: 'POST', body: form })
   if (!response.ok) throw await readError(response, 'Unable to upload photos')
-  return response.json()
+  return response.json() as Promise<UploadResult>
 }
 
 export async function updateSubmission(

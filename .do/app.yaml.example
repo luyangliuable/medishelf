@@ -28,6 +28,21 @@ services:
       - key: UPLOAD_DIR
         scope: RUN_TIME
         value: /tmp/uploads
+      - key: LLM_PROVIDER
+        scope: RUN_TIME
+        value: openai-compatible
+      - key: LLM_BASE_URL
+        scope: RUN_TIME
+        value: https://api.openai.com/v1
+      - key: LLM_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: LLM_MODEL
+        scope: RUN_TIME
+        value: gpt-4.1-mini
+      - key: LLM_HEADERS_JSON
+        scope: RUN_TIME
+        value: "{}"
 
 jobs:
   - name: db-migrate

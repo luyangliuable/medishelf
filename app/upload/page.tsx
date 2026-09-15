@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { CircleCheck, UploadCloud } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import CenteredFrame from '@/components/CenteredFrame'
@@ -16,8 +15,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { uploadSubmission } from '@/lib/submissions'
-import type { Photo } from '@/lib/types'
+import { uploadSubmission, type SubmissionProcessing } from '@/lib/submissions'
+import { PHOTO_BATCH_SIZE, type Photo } from '@/lib/types'
 import { useUser } from '@/lib/useUser'
 
 type Step = 'intro' | 'camera' | 'confirm' | 'complete'
@@ -28,16 +27,18 @@ export default function UploadPage() {
   const [photos, setPhotos] = useState<Photo[]>([])
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [processing, setProcessing] = useState<SubmissionProcessing>('in_review')
 
   const reset = () => {
     photos.forEach(p => URL.revokeObjectURL(p.url))
     setPhotos([])
     setError('')
+    setProcessing('in_review')
     setStep('intro')
   }
 
   const done = () => {
-    if (photos.length < 4) setError('Please take at least 4 photos.')
+    if (photos.length !== PHOTO_BATCH_SIZE) setError(`Please take exactly ${PHOTO_BATCH_SIZE} photos.`)
     else setStep('confirm')
   }
 
@@ -49,7 +50,8 @@ export default function UploadPage() {
     setBusy(true)
     setError('')
     try {
-      await uploadSubmission(photos.map(p => p.file))
+      const result = await uploadSubmission(photos.map(p => p.file))
+      setProcessing(result.processing)
       setStep('complete')
     } catch (err) {
       setError((err as Error).message)
@@ -60,8 +62,15 @@ export default function UploadPage() {
 
   if (loading) return <CenteredFrame />
   if (step === 'camera')
-    return <UploadCamera photos={photos} setPhotos={setPhotos} onClose={reset} onDone={done} error={error} />
-  if (step === 'complete') return <Complete onReset={reset} />
+    return <UploadCamera
+      photos={photos}
+      setPhotos={setPhotos}
+      onClose={reset}
+      onDone={done}
+      error={error}
+      maxPhotos={PHOTO_BATCH_SIZE}
+    />
+  if (step === 'complete') return <Complete onReset={reset} processing={processing} />
 
   return (
     <Intro
@@ -94,10 +103,10 @@ function Intro({ setStep, error, confirming, busy, onUpload, onCancel, onFinish,
       <div className="flex flex-1 flex-col px-6 pt-8 pb-6">
         <PageHeader title="Upload Photos" />
         <p className="mt-7 text-center text-base leading-relaxed text-[#2d3458]">
-          Submit a minimum of four photos of the product. Capture the front, sides and back to collect all the
+          Submit exactly four photos of the product. Capture the front, sides and back to collect all the
           product details.
         </p>
-        <p className="my-5 text-center text-[17px] font-extrabold">The more photos the better.</p>
+        <p className="my-5 text-center text-[17px] font-extrabold">Use one clear photo for each side.</p>
         <Card
           role="button"
           tabIndex={0}
@@ -107,7 +116,7 @@ function Intro({ setStep, error, confirming, busy, onUpload, onCancel, onFinish,
         >
           <UploadCloud className="!size-8 text-foreground" />
           <strong className="text-base font-extrabold">Tap to upload photos</strong>
-          <span className="text-xs text-muted-foreground">PNG, JPEG, or HEIC</span>
+          <span className="text-xs text-muted-foreground">PNG, JPEG, or WebP</span>
         </Card>
         {error && (
           <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-center text-sm text-destructive">
@@ -146,20 +155,28 @@ function Intro({ setStep, error, confirming, busy, onUpload, onCancel, onFinish,
   )
 }
 
-function Complete({ onReset }: { onReset: () => void }) {
+function Complete({
+  onReset,
+  processing
+}: {
+  onReset: () => void
+  processing: SubmissionProcessing
+}) {
   return (
     <CenteredFrame>
       <div className="px-6 pt-[210px] text-center md:pt-16 md:pb-16">
         <CircleCheck className="!size-14 mx-auto mb-4 text-accent" />
         <h1 className="mb-3 text-[28px] font-bold">Upload complete!</h1>
         <p className="mb-7 leading-relaxed text-muted-foreground">
-          Thanks for being a Medi Mate. You can edit this upload via the Upload History page.
+          {processing === 'complete'
+            ? 'The product details were identified and saved. You can edit this upload via Upload History.'
+            : 'Your photos were saved, but product identification is still pending review.'}
         </p>
         <Button onClick={onReset} size="xl" className="mb-3 w-full rounded-2xl">
           Take photos of another product
         </Button>
         <Button asChild variant="outline" size="xl" className="w-full rounded-2xl">
-          <Link href="/dashboard">Go back to dashboard</Link>
+          <a href="/dashboard">Go back to dashboard</a>
         </Button>
       </div>
     </CenteredFrame>

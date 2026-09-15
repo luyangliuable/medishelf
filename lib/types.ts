@@ -1,3 +1,7 @@
+export const PHOTO_BATCH_SIZE = 4
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024
+export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const
+
 export type User = {
   id: string
   email: string

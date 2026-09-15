@@ -25,6 +25,11 @@ services:
       SESSION_SECRET: change_this_local_secret
       UPLOAD_DIR: /data/uploads
       NEXT_PUBLIC_APP_URL: http://localhost:3000
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai-compatible}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4.1-mini}
+      LLM_HEADERS_JSON: ${LLM_HEADERS_JSON:-{}}
     volumes:
       - uploads:/data/uploads
     depends_on:

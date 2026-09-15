@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { History, Home, User } from 'lucide-react'
 import Logo from '@/components/Logo'
 import { cn } from '@/lib/utils'
@@ -20,7 +19,7 @@ export default function Navigation({ active }: { active?: string }) {
         {items.map(({ href, label, Icon }) => {
           const isActive = active === href
           return (
-            <Link
+            <a
               key={href}
               href={href}
               aria-label={label}
@@ -30,7 +29,7 @@ export default function Navigation({ active }: { active?: string }) {
               )}
             >
               <Icon className="size-5" />
-            </Link>
+            </a>
           )
         })}
       </nav>
@@ -47,7 +46,7 @@ export default function Navigation({ active }: { active?: string }) {
           {items.map(({ href, label, Icon }) => {
             const isActive = active === href
             return (
-              <Link
+              <a
                 key={href}
                 href={href}
                 className={cn(
@@ -57,7 +56,7 @@ export default function Navigation({ active }: { active?: string }) {
               >
                 <Icon className="size-5" />
                 {label}
-              </Link>
+              </a>
             )
           })}
         </nav>

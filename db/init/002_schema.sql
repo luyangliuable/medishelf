@@ -1,6 +1,15 @@
+create table if not exists public.users (
+  id uuid primary key,
+  email text unique not null,
+  encrypted_password text not null,
+  raw_user_meta_data jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.photo_submissions (
   id bigserial primary key,
-  created_by uuid not null references auth.users(id) on delete cascade,
+  created_by uuid not null references public.users(id) on delete cascade,
   name text not null default 'Product upload',
   manufacturer text not null default 'Unknown',
   status text not null default 'in_review',

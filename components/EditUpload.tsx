@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CircleCheck, UploadCloud, X } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
@@ -117,7 +116,7 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
             Your upload has been updated. You can keep editing from the history page.
           </p>
           <Button asChild size="xl" className="mb-3 w-full rounded-2xl">
-            <Link href="/history">Back to history</Link>
+            <a href="/history">Back to history</a>
           </Button>
           <Button
             variant="outline"
@@ -170,7 +169,7 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
         >
           <UploadCloud className="!size-8 text-foreground" />
           <strong className="text-base font-extrabold">Add more photos</strong>
-          <span className="text-xs text-muted-foreground">PNG, JPEG, or HEIC</span>
+          <span className="text-xs text-muted-foreground">PNG, JPEG, or WebP</span>
         </Card>
 
         {belowMinimum && hasChanges && (

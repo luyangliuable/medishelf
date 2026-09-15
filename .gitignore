@@ -3,6 +3,7 @@ node_modules
 .env*.local
 .DS_Store
 coverage
+bug-fixes/
 .vercel
 next-env.d.ts
 *.tsbuildinfo

@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import type { Photo } from '@/lib/types'
+import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
+  type Photo
+} from '@/lib/types'
 
 type Props = {
   photos: Photo[]
@@ -12,9 +16,10 @@ type Props = {
   onClose: () => void
   onDone: () => void
   error: string
+  maxPhotos?: number
 }
 
-export default function UploadCamera({ photos, setPhotos, onClose, onDone, error }: Props) {
+export default function UploadCamera({ photos, setPhotos, onClose, onDone, error, maxPhotos }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -31,7 +36,22 @@ export default function UploadCamera({ photos, setPhotos, onClose, onDone, error
     return () => streamRef.current?.getTracks().forEach(track => track.stop())
   }, [])
 
-  const addFile = (file: File) => setPhotos(prev => [...prev, { file, url: URL.createObjectURL(file) }])
+  const addFile = (file: File) => {
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type as typeof ACCEPTED_IMAGE_TYPES[number])) {
+      setCameraError('Choose a JPEG, PNG, or WebP image.')
+      return
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setCameraError('Each photo must be 10 MB or smaller.')
+      return
+    }
+    if (maxPhotos && photos.length >= maxPhotos) {
+      setCameraError(`This upload requires exactly ${maxPhotos} photos.`)
+      return
+    }
+    setCameraError('')
+    setPhotos(prev => [...prev, { file, url: URL.createObjectURL(file) }])
+  }
 
   const capture = () => {
     const video = videoRef.current
@@ -56,7 +76,7 @@ export default function UploadCamera({ photos, setPhotos, onClose, onDone, error
           ref={fileRef}
           hidden
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp"
           capture="environment"
           onChange={e => e.target.files?.[0] && addFile(e.target.files[0])}
         />
