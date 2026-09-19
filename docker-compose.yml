@@ -9,7 +9,6 @@ services:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d medishelf"]
       interval: 5s
@@ -32,9 +31,6 @@ services:
       LLM_HEADERS_JSON: ${LLM_HEADERS_JSON:-{}}
     volumes:
       - uploads:/data/uploads
-    depends_on:
-      db:
-        condition: service_healthy
 
 volumes:
   pgdata:

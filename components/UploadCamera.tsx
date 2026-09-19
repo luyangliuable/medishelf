@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Check, X } from 'lucide-react'
+import { Check, ImagePlus, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   ACCEPTED_IMAGE_TYPES,
+  MAX_PHOTO_BATCH_SIZE,
   MAX_IMAGE_BYTES,
   type Photo
 } from '@/lib/types'
@@ -16,10 +17,17 @@ type Props = {
   onClose: () => void
   onDone: () => void
   error: string
-  maxPhotos?: number
+  onAddDevicePhotos: (files: FileList | null) => void
 }
 
-export default function UploadCamera({ photos, setPhotos, onClose, onDone, error, maxPhotos }: Props) {
+export default function UploadCamera({
+  photos,
+  setPhotos,
+  onClose,
+  onDone,
+  error,
+  onAddDevicePhotos
+}: Props) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -45,8 +53,8 @@ export default function UploadCamera({ photos, setPhotos, onClose, onDone, error
       setCameraError('Each photo must be 10 MB or smaller.')
       return
     }
-    if (maxPhotos && photos.length >= maxPhotos) {
-      setCameraError(`This upload requires exactly ${maxPhotos} photos.`)
+    if (photos.length >= MAX_PHOTO_BATCH_SIZE) {
+      setCameraError(`This upload supports up to ${MAX_PHOTO_BATCH_SIZE} photos.`)
       return
     }
     setCameraError('')
@@ -77,8 +85,11 @@ export default function UploadCamera({ photos, setPhotos, onClose, onDone, error
           hidden
           type="file"
           accept="image/jpeg,image/png,image/webp"
-          capture="environment"
-          onChange={e => e.target.files?.[0] && addFile(e.target.files[0])}
+          multiple
+          onChange={event => {
+            onAddDevicePhotos(event.target.files)
+            event.target.value = ''
+          }}
         />
         <div className="absolute inset-x-4 top-6 z-10 flex justify-between">
           <Button
@@ -90,14 +101,24 @@ export default function UploadCamera({ photos, setPhotos, onClose, onDone, error
           >
             <X className="size-5" />
           </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onDone}
-            className="rounded-full bg-white text-foreground hover:bg-white/90"
-          >
-            <Check className="size-4" /> Done
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => fileRef.current?.click()}
+              className="rounded-full bg-white text-foreground hover:bg-white/90"
+            >
+              <ImagePlus className="size-4" /> Add from device
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={onDone}
+              className="rounded-full bg-white text-foreground hover:bg-white/90"
+            >
+              <Check className="size-4" /> Done
+            </Button>
+          </div>
         </div>
         {cameraError && (
           <button

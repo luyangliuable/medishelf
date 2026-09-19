@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CircleCheck, UploadCloud, X } from 'lucide-react'
+import AccountActions from '@/components/AccountActions'
 import PageHeader from '@/components/PageHeader'
 import CenteredFrame from '@/components/CenteredFrame'
 import UploadCamera from '@/components/UploadCamera'
@@ -17,7 +18,13 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { updateSubmission, type SubmissionImage } from '@/lib/submissions'
-import type { Photo, User } from '@/lib/types'
+import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
+  MAX_PHOTO_BATCH_SIZE,
+  type Photo,
+  type User
+} from '@/lib/types'
 
 type ExistingImage = SubmissionImage & { pendingDelete: boolean }
 type Step = 'review' | 'camera' | 'confirm' | 'saving' | 'done'
@@ -62,6 +69,25 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
   const belowMinimum = remainingCount < MIN_PHOTOS
   const saveDisabled = !hasChanges || belowMinimum || busy
 
+  const addDevicePhotos = (files: FileList | null) => {
+    if (!files?.length) return
+    const selected = Array.from(files)
+    if (remainingCount + selected.length > MAX_PHOTO_BATCH_SIZE) {
+      setError(`You can keep up to ${MAX_PHOTO_BATCH_SIZE} photos.`)
+      return
+    }
+    if (selected.some(file => !ACCEPTED_IMAGE_TYPES.includes(file.type as typeof ACCEPTED_IMAGE_TYPES[number]))) {
+      setError('Photos must be JPEG, PNG, or WebP images.')
+      return
+    }
+    if (selected.some(file => file.size > MAX_IMAGE_BYTES)) {
+      setError('Each photo must be 10 MB or smaller.')
+      return
+    }
+    setError('')
+    setNewPhotos(previous => [...previous, ...selected.map(file => ({ file, url: URL.createObjectURL(file) }))])
+  }
+
   const requestSave = () => {
     if (belowMinimum) {
       setError(`Please keep at least ${MIN_PHOTOS} photos.`)
@@ -101,7 +127,8 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
         setPhotos={setNewPhotos}
         onClose={() => setStep('review')}
         onDone={() => setStep('review')}
-        error=""
+        error={error}
+        onAddDevicePhotos={addDevicePhotos}
       />
     )
   }
@@ -109,7 +136,9 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
   if (step === 'done') {
     return (
       <CenteredFrame>
-        <div className="px-6 pt-[210px] text-center md:pt-16 md:pb-16">
+        <div className="px-6 pt-6 text-center md:pb-16">
+          <AccountActions />
+          <div className="pt-[150px] md:pt-10">
           <CircleCheck className="!size-14 mx-auto mb-4 text-accent" />
           <h1 className="mb-3 text-[28px] font-bold">Changes saved!</h1>
           <p className="mb-7 leading-relaxed text-muted-foreground">
@@ -126,6 +155,7 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
           >
             View another upload
           </Button>
+          </div>
         </div>
       </CenteredFrame>
     )
@@ -134,6 +164,7 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
   return (
     <CenteredFrame wide>
       <div className="flex flex-1 flex-col px-6 pt-8 pb-6">
+        <AccountActions />
         <PageHeader title="Edit Upload" />
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Remove photos you no longer want, or add more. Minimum {MIN_PHOTOS} photos.

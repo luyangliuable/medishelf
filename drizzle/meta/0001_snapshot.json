@@ -1,6 +1,6 @@
 {
-  "id": "516bd8a4-5f79-42a5-9fb4-56dc54dbdee9",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "b548300d-82b8-42c7-b1b5-8c496d34c5a6",
+  "prevId": "516bd8a4-5f79-42a5-9fb4-56dc54dbdee9",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -54,10 +54,10 @@
       "uniqueConstraints": {
         "users_email_unique": {
           "name": "users_email_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "email"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       },
       "policies": {},
@@ -150,28 +150,28 @@
         "notifications_created_by_users_id_fk": {
           "name": "notifications_created_by_users_id_fk",
           "tableFrom": "notifications",
-          "tableTo": "users",
           "columnsFrom": [
             "created_by"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "notifications_submission_id_photo_submissions_id_fk": {
           "name": "notifications_submission_id_photo_submissions_id_fk",
           "tableFrom": "notifications",
-          "tableTo": "photo_submissions",
           "columnsFrom": [
             "submission_id"
           ],
+          "tableTo": "photo_submissions",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         }
       },
       "compositePrimaryKeys": {},
@@ -235,15 +235,15 @@
         "photo_submission_images_submission_id_photo_submissions_id_fk": {
           "name": "photo_submission_images_submission_id_photo_submissions_id_fk",
           "tableFrom": "photo_submission_images",
-          "tableTo": "photo_submissions",
           "columnsFrom": [
             "submission_id"
           ],
+          "tableTo": "photo_submissions",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -362,15 +362,15 @@
         "photo_submissions_created_by_users_id_fk": {
           "name": "photo_submissions_created_by_users_id_fk",
           "tableFrom": "photo_submissions",
-          "tableTo": "users",
           "columnsFrom": [
             "created_by"
           ],
+          "tableTo": "users",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -384,10 +384,10 @@
   "schemas": {
     "storage": "storage"
   },
+  "views": {},
   "sequences": {},
   "roles": {},
   "policies": {},
-  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},

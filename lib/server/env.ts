@@ -20,7 +20,7 @@ export function requireAuthSecret() {
   throw new Error('Missing required environment variable: NEXTAUTH_SECRET or SESSION_SECRET')
 }
 
-export type LlmProvider = 'openai-compatible' | 'anthropic'
+export type LlmProvider = 'azure' | 'openai-compatible' | 'anthropic'
 
 export type LlmConfig = {
   provider: LlmProvider
@@ -28,6 +28,7 @@ export type LlmConfig = {
   apiKey?: string
   model: string
   headers: Record<string, string>
+  azureUseBearerAuth: boolean
 }
 
 /**
@@ -37,8 +38,8 @@ export type LlmConfig = {
  */
 export function requireLlmConfig(): LlmConfig {
   const provider = process.env.LLM_PROVIDER
-  if (provider !== 'openai-compatible' && provider !== 'anthropic') {
-    throw new Error('LLM_PROVIDER must be openai-compatible or anthropic')
+  if (provider !== 'azure' && provider !== 'openai-compatible' && provider !== 'anthropic') {
+    throw new Error('LLM_PROVIDER must be azure, openai-compatible, or anthropic')
   }
   const baseUrl = process.env.LLM_BASE_URL
   if (!baseUrl) throw new Error('Missing required environment variable: LLM_BASE_URL')
@@ -58,7 +59,8 @@ export function requireLlmConfig(): LlmConfig {
     baseUrl,
     apiKey: process.env.LLM_API_KEY || undefined,
     model,
-    headers: Object.fromEntries(entries) as Record<string, string>
+    headers: Object.fromEntries(entries) as Record<string, string>,
+    azureUseBearerAuth: process.env.LLM_AZURE_USE_BEARER_AUTH === 'true'
   }
 }
 

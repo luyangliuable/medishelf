@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { CircleCheck, UploadCloud } from 'lucide-react'
+import AccountActions from '@/components/AccountActions'
 import PageHeader from '@/components/PageHeader'
 import CenteredFrame from '@/components/CenteredFrame'
 import UploadCamera from '@/components/UploadCamera'
@@ -16,7 +17,13 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { uploadSubmission, type SubmissionProcessing } from '@/lib/submissions'
-import { PHOTO_BATCH_SIZE, type Photo } from '@/lib/types'
+import {
+  ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_BYTES,
+  MAX_PHOTO_BATCH_SIZE,
+  PHOTO_BATCH_SIZE,
+  type Photo
+} from '@/lib/types'
 import { useUser } from '@/lib/useUser'
 
 type Step = 'intro' | 'camera' | 'confirm' | 'complete'
@@ -38,8 +45,27 @@ export default function UploadPage() {
   }
 
   const done = () => {
-    if (photos.length !== PHOTO_BATCH_SIZE) setError(`Please take exactly ${PHOTO_BATCH_SIZE} photos.`)
+    if (photos.length < PHOTO_BATCH_SIZE) setError(`Please take at least ${PHOTO_BATCH_SIZE} photos.`)
     else setStep('confirm')
+  }
+
+  const addDevicePhotos = (files: FileList | null) => {
+    if (!files?.length) return
+    const selected = Array.from(files)
+    if (photos.length + selected.length > MAX_PHOTO_BATCH_SIZE) {
+      setError(`You can add up to ${MAX_PHOTO_BATCH_SIZE} photos.`)
+      return
+    }
+    if (selected.some(file => !ACCEPTED_IMAGE_TYPES.includes(file.type as typeof ACCEPTED_IMAGE_TYPES[number]))) {
+      setError('Photos must be JPEG, PNG, or WebP images.')
+      return
+    }
+    if (selected.some(file => file.size > MAX_IMAGE_BYTES)) {
+      setError('Each photo must be 10 MB or smaller.')
+      return
+    }
+    setError('')
+    setPhotos(previous => [...previous, ...selected.map(file => ({ file, url: URL.createObjectURL(file) }))])
   }
 
   const upload = async () => {
@@ -68,7 +94,7 @@ export default function UploadPage() {
       onClose={reset}
       onDone={done}
       error={error}
-      maxPhotos={PHOTO_BATCH_SIZE}
+      onAddDevicePhotos={addDevicePhotos}
     />
   if (step === 'complete') return <Complete onReset={reset} processing={processing} />
 
@@ -97,14 +123,24 @@ type IntroProps = {
   hasPhotos: boolean
 }
 
-function Intro({ setStep, error, confirming, busy, onUpload, onCancel, onFinish, hasPhotos }: IntroProps) {
+function Intro({
+  setStep,
+  error,
+  confirming,
+  busy,
+  onUpload,
+  onCancel,
+  onFinish,
+  hasPhotos
+}: IntroProps) {
   return (
     <CenteredFrame wide>
       <div className="flex flex-1 flex-col px-6 pt-8 pb-6">
+        <AccountActions />
         <PageHeader title="Upload Photos" />
         <p className="mt-7 text-center text-base leading-relaxed text-[#2d3458]">
-          Submit exactly four photos of the product. Capture the front, sides and back to collect all the
-          product details.
+          Submit at least four photos of the product, up to {MAX_PHOTO_BATCH_SIZE}. Capture the front, sides and
+          back to collect all the product details.
         </p>
         <p className="my-5 text-center text-[17px] font-extrabold">Use one clear photo for each side.</p>
         <Card
@@ -115,8 +151,8 @@ function Intro({ setStep, error, confirming, busy, onUpload, onCancel, onFinish,
           className="flex min-h-[190px] cursor-pointer flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-[#cdd3e0] bg-secondary p-5 shadow-none"
         >
           <UploadCloud className="!size-8 text-foreground" />
-          <strong className="text-base font-extrabold">Tap to upload photos</strong>
-          <span className="text-xs text-muted-foreground">PNG, JPEG, or WebP</span>
+          <strong className="text-base font-extrabold">Tap to start taking photos</strong>
+          <span className="text-xs text-muted-foreground">Use your camera to photograph the product</span>
         </Card>
         {error && (
           <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-center text-sm text-destructive">
@@ -164,7 +200,9 @@ function Complete({
 }) {
   return (
     <CenteredFrame>
-      <div className="px-6 pt-[210px] text-center md:pt-16 md:pb-16">
+      <div className="px-6 pt-6 text-center md:pb-16">
+        <AccountActions />
+        <div className="pt-[150px] md:pt-10">
         <CircleCheck className="!size-14 mx-auto mb-4 text-accent" />
         <h1 className="mb-3 text-[28px] font-bold">Upload complete!</h1>
         <p className="mb-7 leading-relaxed text-muted-foreground">
@@ -178,6 +216,7 @@ function Complete({
         <Button asChild variant="outline" size="xl" className="w-full rounded-2xl">
           <a href="/dashboard">Go back to dashboard</a>
         </Button>
+        </div>
       </div>
     </CenteredFrame>
   )

@@ -3,7 +3,7 @@ import type { Profile, User } from '@/lib/types'
 export function profileFromUser(user: User | null | undefined): Profile {
   const email = user?.email ?? ''
   return {
-    name: user?.name?.trim() ? user.name : (email.split('@')[0] || 'Christie'),
+    name: user?.name?.trim() ? user.name : email.split('@')[0],
     staffEmail: email,
     phone: user?.phone ?? ''
   }

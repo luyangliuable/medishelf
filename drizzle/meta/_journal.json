@@ -5,8 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1784439257298,
-      "tag": "0000_glamorous_apocalypse",
+      "when": 1789711417189,
+      "tag": "0000_initial-schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789711422297,
+      "tag": "0001_rls-policies",
       "breakpoints": true
     }
   ]
