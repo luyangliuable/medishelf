@@ -42,16 +42,16 @@ function displayValue(value: string | null, isDate = false) {
 
 /** Row tint so pending/processing and failed uploads stand out in the history table. */
 function rowBackground(status: string) {
-  if (status === 'rejected') return 'bg-red-100'
-  if (status === 'in_review') return 'bg-amber-100'
-  return 'bg-emerald-100'
+  if (status === 'rejected') return 'bg-[#fbeaea]'
+  if (status === 'in_review') return 'bg-[#fdf3e3]'
+  return 'bg-[#e7f3ec]'
 }
 
 /** Left accent stripe marking the status of a row. */
 function rowAccent(status: string) {
-  if (status === 'rejected') return 'border-l-4 border-l-red-400'
-  if (status === 'in_review') return 'border-l-4 border-l-amber-400'
-  return 'border-l-4 border-l-emerald-400'
+  if (status === 'rejected') return 'border-l-4 border-l-[#d99a9a]'
+  if (status === 'in_review') return 'border-l-4 border-l-[#e0b878]'
+  return 'border-l-4 border-l-[#9eccb0]'
 }
 
 /** Renders real uploads and allows an owner to delete an upload. */
