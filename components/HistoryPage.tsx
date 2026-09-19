@@ -44,14 +44,14 @@ function displayValue(value: string | null, isDate = false) {
 function rowBackground(status: string) {
   if (status === 'rejected') return 'bg-red-100'
   if (status === 'in_review') return 'bg-amber-100'
-  return 'bg-background'
+  return 'bg-emerald-100'
 }
 
 /** Left accent stripe marking the status of a row. */
 function rowAccent(status: string) {
   if (status === 'rejected') return 'border-l-4 border-l-red-400'
   if (status === 'in_review') return 'border-l-4 border-l-amber-400'
-  return 'border-l-4 border-l-transparent'
+  return 'border-l-4 border-l-emerald-400'
 }
 
 /** Renders real uploads and allows an owner to delete an upload. */
