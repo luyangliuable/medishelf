@@ -13,8 +13,8 @@ export function formatDate(value: string) {
   }).format(new Date(value))
 }
 
-export function statusLabel(status: string): 'Reviewed' | 'Pending' {
+export function statusLabel(status: string): 'Reviewed' | 'Pending' | 'Failed' {
   if (status === 'complete') return 'Reviewed'
-  if (status === 'rejected') return 'Reviewed'
+  if (status === 'rejected') return 'Failed'
   return 'Pending'
 }

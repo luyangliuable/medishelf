@@ -40,6 +40,20 @@ function displayValue(value: string | null, isDate = false) {
     .format(new Date(`${value}T00:00:00Z`))
 }
 
+/** Row tint so pending/processing and failed uploads stand out in the history table. */
+function rowBackground(status: string) {
+  if (status === 'rejected') return 'bg-red-100'
+  if (status === 'in_review') return 'bg-amber-100'
+  return 'bg-background'
+}
+
+/** Left accent stripe marking the status of a row. */
+function rowAccent(status: string) {
+  if (status === 'rejected') return 'border-l-4 border-l-red-400'
+  if (status === 'in_review') return 'border-l-4 border-l-amber-400'
+  return 'border-l-4 border-l-transparent'
+}
+
 /** Renders real uploads and allows an owner to delete an upload. */
 export default function HistoryPage({ user, initialItems }: { user: User; initialItems: Submission[] }) {
   const router = useRouter()
@@ -112,19 +126,25 @@ export default function HistoryPage({ user, initialItems }: { user: User; initia
               <table className="w-full min-w-[1400px] border-collapse text-left text-sm">
                 <thead className="bg-secondary text-xs font-semibold text-muted-foreground">
                   <tr>
+                    <th scope="col" className="whitespace-nowrap px-4 py-3">Status</th>
                     {detailColumns.map(([, heading]) => (
                       <th key={heading} scope="col" className="whitespace-nowrap px-4 py-3">{heading}</th>
                     ))}
                     <th scope="col" className="whitespace-nowrap px-4 py-3">Uploaded</th>
-                    <th scope="col" className="whitespace-nowrap px-4 py-3">Status</th>
-                    <th scope="col" className="sticky right-0 bg-secondary px-4 py-3 text-right">Actions</th>
+                    <th scope="col" className="sticky right-0 z-10 bg-secondary px-4 py-3 text-right">
+                      <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-3 -translate-x-full bg-gradient-to-l from-black/15 to-transparent" />
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {items.map(item => {
                     const label = statusLabel(item.status)
                     return (
-                      <tr key={item.id} className="bg-background">
+                      <tr key={item.id} className={rowBackground(item.status)}>
+                        <td className={`${rowAccent(item.status)} px-4 py-3 align-top`}>
+                          <Badge variant={label === 'Reviewed' ? 'reviewed' : label === 'Failed' ? 'failed' : 'pending'}>{label}</Badge>
+                        </td>
                         {detailColumns.map(([key]) => (
                           <td key={key} className="max-w-64 px-4 py-3 align-top">
                             <span className="break-words">
@@ -135,10 +155,8 @@ export default function HistoryPage({ user, initialItems }: { user: User; initia
                         <td className="whitespace-nowrap px-4 py-3 align-top text-muted-foreground">
                           {formatDate(item.created_at)}
                         </td>
-                        <td className="px-4 py-3 align-top">
-                          <Badge variant={label === 'Reviewed' ? 'reviewed' : 'pending'}>{label}</Badge>
-                        </td>
-                        <td className="sticky right-0 bg-background px-4 py-3 text-right align-top">
+                        <td className={`sticky right-0 z-10 ${rowBackground(item.status)} px-4 py-3 text-right align-top`}>
+                          <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-3 -translate-x-full bg-gradient-to-l from-black/15 to-transparent" />
                           <div className="flex justify-end gap-1">
                             {item.status === 'in_review' && (
                               <Button
