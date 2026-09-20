@@ -2,12 +2,19 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, RefreshCw, Search, SlidersHorizontal, Trash2 } from 'lucide-react'
+import { MoreVertical, Pencil, RefreshCw, Search, Settings2, SlidersHorizontal, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import AppShell from '@/components/AppShell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
@@ -131,9 +138,12 @@ export default function HistoryPage({ user, initialItems }: { user: User; initia
                       <th key={heading} scope="col" className="whitespace-nowrap px-4 py-3">{heading}</th>
                     ))}
                     <th scope="col" className="whitespace-nowrap px-4 py-3">Uploaded</th>
-                    <th scope="col" className="sticky right-0 z-10 bg-secondary px-4 py-3 text-right">
+                    <th scope="col" className="sticky right-0 z-10 w-px bg-secondary px-2 py-3 text-right">
                       <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-3 -translate-x-full bg-gradient-to-l from-black/15 to-transparent" />
-                      Actions
+                      <span className="sr-only">Actions</span>
+                      <div className="flex justify-center">
+                        <Settings2 aria-hidden className="size-4" />
+                      </div>
                     </th>
                   </tr>
                 </thead>
@@ -155,39 +165,42 @@ export default function HistoryPage({ user, initialItems }: { user: User; initia
                         <td className="whitespace-nowrap px-4 py-3 align-top text-muted-foreground">
                           {formatDate(item.created_at)}
                         </td>
-                        <td className={`sticky right-0 z-10 ${rowBackground(item.status)} px-4 py-3 text-right align-top`}>
+                        <td className={`sticky right-0 z-10 w-px ${rowBackground(item.status)} px-2 py-3 text-right align-top`}>
                           <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-3 -translate-x-full bg-gradient-to-l from-black/15 to-transparent" />
-                          <div className="flex justify-end gap-1">
-                            {item.status === 'in_review' && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8 text-muted-foreground"
-                                aria-label={`Retry analysis for ${item.name || 'upload'}`}
-                                onClick={() => retryAnalysis(item.id)}
-                                disabled={retryingId === item.id}
-                              >
-                                <RefreshCw className={`size-4 ${retryingId === item.id ? 'animate-spin' : ''}`} />
-                              </Button>
-                            )}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8 text-muted-foreground"
-                              aria-label={`Edit ${item.name || 'upload'}`}
-                              onClick={() => router.push(`/upload/${item.id}`)}
-                            >
-                              <Pencil className="size-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                              aria-label={`Delete ${item.name || 'upload'}`}
-                              onClick={() => setSelected(item)}
-                            >
-                              <Trash2 className="size-4" />
-                            </Button>
+                          <div className="flex justify-end">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8 text-muted-foreground"
+                                  aria-label={`Actions for ${item.name || 'upload'}`}
+                                >
+                                  <MoreVertical className="size-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-40">
+                                <DropdownMenuItem
+                                  disabled={retryingId === item.id}
+                                  onSelect={() => retryAnalysis(item.id)}
+                                >
+                                  <RefreshCw className={`size-4 ${retryingId === item.id ? 'animate-spin' : ''}`} />
+                                  Retry
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => router.push(`/upload/${item.id}`)}>
+                                  <Pencil className="size-4" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                  onSelect={() => setSelected(item)}
+                                >
+                                  <Trash2 className="size-4" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </td>
                       </tr>
