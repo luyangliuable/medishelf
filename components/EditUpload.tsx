@@ -18,6 +18,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { updateSubmission, type SubmissionImage } from '@/lib/submissions'
+import { withBasePath } from '@/lib/basePath'
 import {
   ACCEPTED_IMAGE_TYPES,
   MAX_IMAGE_BYTES,
@@ -145,7 +146,7 @@ export default function EditUpload({ submissionId, initialImages, user }: Props)
             Your upload has been updated. You can keep editing from the history page.
           </p>
           <Button asChild size="xl" className="mb-3 w-full rounded-2xl">
-            <a href="/history">Back to history</a>
+            <a href={withBasePath('/history')}>Back to history</a>
           </Button>
           <Button
             variant="outline"

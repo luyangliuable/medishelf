@@ -1,9 +1,10 @@
 import Image from 'next/image'
+import { withBasePath } from '@/lib/basePath'
 
 export default function Logo({ large = false }: { large?: boolean }) {
   return (
     <Image
-      src="/images/medishelf.png"
+      src={withBasePath('/images/medishelf.png')}
       alt="MediShelf"
       width={large ? 220 : 112}
       height={large ? 113 : 58}

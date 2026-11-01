@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { profileFromUser, saveProfile } from '@/lib/profile'
 import type { Profile, User } from '@/lib/types'
+import { withBasePath } from '@/lib/basePath'
 
 export default function ProfilePage({ user }: { user: User }) {
   const [profile, setProfile] = useState<Profile>(() => profileFromUser(user))
@@ -30,7 +31,7 @@ export default function ProfilePage({ user }: { user: User }) {
   }
 
   const logOut = async () => {
-    await signOut({ callbackUrl: '/login' })
+    await signOut({ callbackUrl: withBasePath('/login') })
   }
 
   const initial = (profile.name || 'M').trim().charAt(0).toUpperCase()

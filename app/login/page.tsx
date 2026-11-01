@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { withBasePath } from '@/lib/basePath'
 
 type Mode = 'signin' | 'signup'
 type Form = { name: string; email: string; phone: string; password: string }
@@ -29,7 +30,7 @@ export default function LoginPage() {
     setSubmitting(true)
     try {
       if (mode === 'signup') {
-        const response = await fetch('/api/register', {
+        const response = await fetch(withBasePath('/api/register'), {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(form)

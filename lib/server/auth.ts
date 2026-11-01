@@ -2,10 +2,19 @@ import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { findUserByEmail, toAppUser } from '@/lib/database/users'
 import { verifyPassword } from '@/lib/server/password'
+import { BASE_PATH, withBasePath } from '@/lib/basePath'
 import { configureNextAuthUrl, requireAuthSecret, validateServerEnv } from '@/lib/server/env'
 
 validateServerEnv()
 configureNextAuthUrl()
+
+const secureCookies = process.env.NEXTAUTH_URL?.startsWith('https://') ?? false
+
+/** next-auth cookie scoped to the base path, so other apps sharing the domain never receive it. */
+const scopedCookie = (name: string) => ({
+  name: `${secureCookies ? '__Secure-' : ''}next-auth.${name}`,
+  options: { httpOnly: true, sameSite: 'lax' as const, path: BASE_PATH || '/', secure: secureCookies }
+})
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -50,7 +59,8 @@ export const authOptions: NextAuthOptions = {
       return session
     }
   },
-  pages: { signIn: '/login' },
+  pages: { signIn: withBasePath('/login') },
   session: { strategy: 'jwt', maxAge: 8 * 60 * 60 },
+  cookies: { sessionToken: scopedCookie('session-token'), callbackUrl: scopedCookie('callback-url') },
   secret: requireAuthSecret()
 }

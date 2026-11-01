@@ -1,10 +1,11 @@
 import { mkdir, readFile, unlink, writeFile } from 'fs/promises'
 import { dirname, join, normalize, resolve } from 'path'
+import { withBasePath } from '@/lib/basePath'
 
 const root = resolve(process.env.UPLOAD_DIR ?? join(process.cwd(), 'uploads'))
 
 export function publicFileUrl(path: string) {
-  return `/api/files/${path.split('/').map(encodeURIComponent).join('/')}`
+  return withBasePath(`/api/files/${path.split('/').map(encodeURIComponent).join('/')}`)
 }
 
 export function resolveUploadPath(path: string) {

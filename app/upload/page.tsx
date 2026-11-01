@@ -25,6 +25,7 @@ import {
   type Photo
 } from '@/lib/types'
 import { useUser } from '@/lib/useUser'
+import { withBasePath } from '@/lib/basePath'
 
 type Step = 'intro' | 'camera' | 'confirm' | 'complete'
 
@@ -214,7 +215,7 @@ function Complete({
           Take photos of another product
         </Button>
         <Button asChild variant="outline" size="xl" className="w-full rounded-2xl">
-          <a href="/dashboard">Go back to dashboard</a>
+          <a href={withBasePath('/dashboard')}>Go back to dashboard</a>
         </Button>
         </div>
       </div>
