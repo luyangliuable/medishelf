@@ -66,6 +66,38 @@ export function requireLlmConfig(): LlmConfig {
   }
 }
 
+export type CodeReaderConfig = {
+  /** Run the locating agent when a plain scan finds no GS1 lot or expiry. */
+  agentEnabled: boolean
+  /** Vision model the agent uses to locate codes; defaults to LLM_MODEL. */
+  model: string
+  maxSteps: number
+  /** When decoded and printed values disagree: leave the field empty, or trust the code. */
+  conflictPolicy: 'empty' | 'prefer-code'
+}
+
+/**
+ * Reads the optional code reader settings. Every value has a safe default.
+ *
+ * @param llm - Main LLM configuration, used for the default model.
+ */
+export function requireCodeReaderConfig(llm: LlmConfig): CodeReaderConfig {
+  const maxSteps = Number(process.env.CODE_AGENT_MAX_STEPS ?? 6)
+  if (!Number.isInteger(maxSteps) || maxSteps < 1 || maxSteps > 20) {
+    throw new Error('CODE_AGENT_MAX_STEPS must be an integer from 1 to 20')
+  }
+  const conflictPolicy = process.env.CODE_CONFLICT_POLICY ?? 'empty'
+  if (conflictPolicy !== 'empty' && conflictPolicy !== 'prefer-code') {
+    throw new Error('CODE_CONFLICT_POLICY must be empty or prefer-code')
+  }
+  return {
+    agentEnabled: process.env.CODE_AGENT_ENABLED !== 'false',
+    model: process.env.CODE_LOCATOR_MODEL || llm.model,
+    maxSteps,
+    conflictPolicy
+  }
+}
+
 export function configureNextAuthUrl() {
   if (!process.env.NEXTAUTH_URL && process.env.NEXT_PUBLIC_APP_URL) {
     // next-auth treats the path of NEXTAUTH_URL as its own route, so point it at the auth

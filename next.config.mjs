@@ -12,6 +12,8 @@ if (basePath && (!basePath.startsWith('/') || basePath.endsWith('/'))) {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   basePath,
+  // Loaded from node_modules at runtime: zxing-wasm reads its .wasm file from disk.
+  serverExternalPackages: ['zxing-wasm', 'sharp'],
   turbopack: {
     root: __dirname
   }

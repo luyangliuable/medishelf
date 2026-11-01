@@ -69,6 +69,33 @@ manufacturer address, and manufacturer site.
 Unreadable or ambiguous values are stored as `NULL` and displayed as `Not detected`.
 Unambiguous manufacture and expiration values are stored as PostgreSQL dates.
 
+## Code reader
+
+Alongside the vision model, every batch goes through a code reader (`lib/server/codeReader`)
+that decodes GS1 DataMatrix, QR (including GS1 Digital Link), EAN/UPC, GS1-128 and similar codes
+with ZXing-C++. A GS1 code can establish the GTIN, lot, expiry and manufacture date exactly,
+including when the printed text is smudged or the date is ambiguous.
+
+1. A plain scan of each photo runs first (no model calls).
+2. If it finds no GS1 lot or expiry, a vision agent (Vercel AI SDK `ToolLoopAgent`) looks at the
+   photos and calls a `decodeRegion` tool on anything that looks like a code. Only values the
+   decoder returns are used; the model never reads digits itself.
+3. Decoded values fill empty fields and confirm matching ones. When a decoded value and the
+   printed reading disagree, the field is left empty, unless the printed GTIN fails its check
+   digit, in which case the decoded one is used.
+
+Optional settings:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `CODE_AGENT_ENABLED` | `true` | Set `false` to use the plain scan only |
+| `CODE_LOCATOR_MODEL` | `LLM_MODEL` | Vision model the agent uses to locate codes |
+| `CODE_AGENT_MAX_STEPS` | `6` | Agent step limit (1 to 20) |
+| `CODE_CONFLICT_POLICY` | `empty` | `prefer-code` trusts the decoded value on a disagreement |
+
+Each analysis logs which codes were found and where every code-backed field came from.
+Run the tests with `npm test`.
+
 ## Serving under a path prefix
 
 Set `NEXT_PUBLIC_BASE_PATH` (for example `/new`) to serve the app under a path, such as

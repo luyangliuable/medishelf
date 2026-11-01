@@ -1,12 +1,12 @@
 /**
  * @fileoverview Analyzes product images through a configurable LLM provider.
  */
-import { createAnthropic } from '@ai-sdk/anthropic'
-import { createAzure } from '@ai-sdk/azure'
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
-import { generateObject, type LanguageModel } from 'ai'
+import { generateObject } from 'ai'
 import { z } from 'zod'
-import { requireLlmConfig, type LlmConfig } from '@/lib/server/env'
+import { readCodes } from '@/lib/server/codeReader/agent'
+import { consolidateCodes, mergeCodeFields } from '@/lib/server/codeReader/merge'
+import { requireCodeReaderConfig, requireLlmConfig, type LlmConfig } from '@/lib/server/env'
+import { createLanguageModel } from '@/lib/server/llm'
 
 const SYSTEM_PROMPT = `You analyze photographs of the same medical product.
 Use visible packaging and labels to identify the requested label fields.
@@ -47,37 +47,6 @@ const MAX_ANALYSIS_OUTPUT_TOKENS = 4096
 const ANALYSIS_TIMEOUT_MS = 120_000
 
 /**
- * Creates a model adapter for the configured provider protocol.
- *
- * @param config - Validated LLM endpoint configuration.
- * @returns Provider-neutral language model.
- */
-function createLanguageModel(config: LlmConfig): LanguageModel {
-  if (config.provider === 'anthropic') {
-    return createAnthropic({
-      baseURL: config.baseUrl,
-      apiKey: config.apiKey,
-      headers: config.headers
-    })(config.model)
-  }
-  if (config.provider === 'azure') {
-    return createAzure({
-      baseURL: config.baseUrl,
-      apiKey: config.azureUseBearerAuth ? 'gateway-authenticated' : config.apiKey,
-      headers: config.azureUseBearerAuth && config.apiKey
-        ? { ...config.headers, Authorization: `Bearer ${config.apiKey}` }
-        : config.headers
-    })(config.model)
-  }
-  return createOpenAICompatible({
-    name: 'medishelf-llm',
-    baseURL: config.baseUrl,
-    apiKey: config.apiKey,
-    headers: config.headers
-  }).chatModel(config.model)
-}
-
-/**
  * Converts an uploaded image into a provider-neutral image part.
  *
  * @param file - Validated uploaded image.
@@ -93,7 +62,9 @@ async function toImagePart(file: File) {
 }
 
 /**
- * Sends a complete product-photo batch to the configured LLM endpoint.
+ * Reads the label fields off a complete product-photo batch. The vision model reads the
+ * printed label while a code reader decodes any DataMatrix, QR or barcode in parallel;
+ * checksum-verified decoded values then fill or confirm the code-backed fields.
  *
  * @param files - At least four validated product images.
  * @returns Validated product-label fields.
@@ -101,6 +72,32 @@ async function toImagePart(file: File) {
 export async function analyzeProductImages(files: File[]): Promise<ProductAnalysis> {
   if (files.length < 4) throw new Error('Product analysis requires at least four images')
   const config = requireLlmConfig()
+  const codeConfig = requireCodeReaderConfig(config)
+  const photos = await Promise.all(files.map(async file => Buffer.from(await file.arrayBuffer())))
+
+  const [label, hits] = await Promise.all([
+    readLabel(config, files),
+    readCodes(photos, {
+      model: codeConfig.agentEnabled ? createLanguageModel({ ...config, model: codeConfig.model }) : undefined,
+      maxSteps: codeConfig.maxSteps,
+      ...(config.provider === 'azure' ? {} : { temperature: 0 }),
+      abortSignal: AbortSignal.timeout(ANALYSIS_TIMEOUT_MS),
+      log: (message, details) => (message.endsWith('failed') ? console.warn : console.info)(message, details)
+    })
+  ])
+
+  const { fields, sources } = mergeCodeFields(label, consolidateCodes(hits), codeConfig.conflictPolicy)
+  console.info('Product analysis sources', { codes: hits.map(hit => `${hit.format} via ${hit.via}`), sources })
+  return fields
+}
+
+/**
+ * Sends the batch to the configured LLM endpoint to read the printed label.
+ *
+ * @param config - Validated LLM endpoint configuration.
+ * @param files - Validated product images.
+ */
+async function readLabel(config: LlmConfig, files: File[]): Promise<ProductAnalysis> {
   const images = await Promise.all(files.map(toImagePart))
   const { object } = await generateObject({
     model: createLanguageModel(config),
