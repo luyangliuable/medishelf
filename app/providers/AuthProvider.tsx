@@ -2,7 +2,8 @@
 
 import type { ReactNode } from 'react'
 import { SessionProvider } from 'next-auth/react'
+import { withBasePath } from '@/lib/basePath'
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>
+  return <SessionProvider basePath={withBasePath('/api/auth')}>{children}</SessionProvider>
 }

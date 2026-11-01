@@ -1,4 +1,5 @@
 import type { Profile, User } from '@/lib/types'
+import { withBasePath } from '@/lib/basePath'
 
 export function profileFromUser(user: User | null | undefined): Profile {
   const email = user?.email ?? ''
@@ -10,7 +11,7 @@ export function profileFromUser(user: User | null | undefined): Profile {
 }
 
 export async function saveProfile(profile: Profile) {
-  const response = await fetch('/api/profile', {
+  const response = await fetch(withBasePath('/api/profile'), {
     method: 'PUT',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(profile)

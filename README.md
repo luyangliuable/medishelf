@@ -69,6 +69,22 @@ manufacturer address, and manufacturer site.
 Unreadable or ambiguous values are stored as `NULL` and displayed as `Not detected`.
 Unambiguous manufacture and expiration values are stored as PostgreSQL dates.
 
+## Serving under a path prefix
+
+Set `NEXT_PUBLIC_BASE_PATH` (for example `/new`) to serve the app under a path, such as
+`https://medishelf.net/new` behind the medishelf.net router. It must be set at both build time
+and run time, and `NEXT_PUBLIC_APP_URL` should include the prefix:
+
+```bash
+NEXT_PUBLIC_BASE_PATH=/new
+NEXT_PUBLIC_APP_URL=https://medishelf.net/new
+```
+
+Leave it unset to serve from the root. Next.js prefixes `<Link>`, `redirect()` and router
+navigation itself; anything else that builds an app path (`fetch`, plain anchors, `next/image`
+sources, next-auth URLs) goes through `withBasePath()` from `lib/basePath.ts`. Session cookies are
+scoped to the prefix so other apps on the same domain never receive them.
+
 ## DigitalOcean App Platform
 
 Use a pre-deploy job for migrations instead of running `db:push` at web startup. The job should install dev dependencies because Drizzle Kit is a development dependency:

@@ -1,6 +1,7 @@
 import { History, Home, User } from 'lucide-react'
 import Logo from '@/components/Logo'
 import { cn } from '@/lib/utils'
+import { withBasePath } from '@/lib/basePath'
 
 const items = [
   { href: '/dashboard', label: 'Home', Icon: Home },
@@ -21,7 +22,7 @@ export default function Navigation({ active }: { active?: string }) {
           return (
             <a
               key={href}
-              href={href}
+              href={withBasePath(href)}
               aria-label={label}
               className={cn(
                 'grid place-items-center h-13 w-13 rounded-2xl transition-colors',
@@ -48,7 +49,7 @@ export default function Navigation({ active }: { active?: string }) {
             return (
               <a
                 key={href}
-                href={href}
+                href={withBasePath(href)}
                 className={cn(
                   'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors',
                   isActive ? 'bg-accent text-accent-foreground' : 'text-foreground hover:bg-accent/10'

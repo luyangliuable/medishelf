@@ -1,3 +1,5 @@
+import { withBasePath } from '@/lib/basePath'
+
 const isNextBuild = process.env.NEXT_PHASE === 'phase-production-build'
 
 function buildFallback(name: string) {
@@ -66,7 +68,9 @@ export function requireLlmConfig(): LlmConfig {
 
 export function configureNextAuthUrl() {
   if (!process.env.NEXTAUTH_URL && process.env.NEXT_PUBLIC_APP_URL) {
-    process.env.NEXTAUTH_URL = process.env.NEXT_PUBLIC_APP_URL
+    // next-auth treats the path of NEXTAUTH_URL as its own route, so point it at the auth
+    // handler rather than at the app root, which may sit under a base path such as /new.
+    process.env.NEXTAUTH_URL = `${new URL(process.env.NEXT_PUBLIC_APP_URL).origin}${withBasePath('/api/auth')}`
   }
   if (process.env.NEXTAUTH_URL) return process.env.NEXTAUTH_URL
   if (isNextBuild) return buildFallback('NEXTAUTH_URL')
